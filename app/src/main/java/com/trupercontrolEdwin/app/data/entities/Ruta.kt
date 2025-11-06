@@ -8,5 +8,7 @@ data class Ruta(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val nombre: String,
     val fecha: String? = null,
-    val fotoListadoUri: String? = null
+    val fotoListadoUri: String? = null,
+    val foliosEsperados: String? = null,
+    val notas: String? = null
 )

@@ -9,15 +9,15 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.trupercontrolEdwin.app.data.database.AppDatabase
 import com.trupercontrolEdwin.app.data.entities.Factura
 import kotlinx.coroutines.launch
 
 @Composable
-fun FacturasScreen(navController: NavController, folioId: Long? = null) {
+fun FacturasScreen(navController: NavController, folioId: Long) {
     val context = LocalContext.current
     val db = remember { AppDatabase.get(context) }
     val scope = rememberCoroutineScope()
@@ -26,10 +26,8 @@ fun FacturasScreen(navController: NavController, folioId: Long? = null) {
     var mostrarDialogo by remember { mutableStateOf(false) }
 
     LaunchedEffect(folioId) {
-        if (folioId != null) {
-            db.facturaDao().getByFolio(folioId).collect { lista ->
-                facturas = lista
-            }
+        db.facturaDao().getByFolio(folioId).collect { lista ->
+            facturas = lista
         }
     }
 
@@ -68,7 +66,7 @@ fun FacturasScreen(navController: NavController, folioId: Long? = null) {
         }
     }
 
-    if (mostrarDialogo && folioId != null) {
+    if (mostrarDialogo) {
         DialogNuevaFactura(
             onDismiss = { mostrarDialogo = false },
             onSave = { folioFactura, total, estatus ->

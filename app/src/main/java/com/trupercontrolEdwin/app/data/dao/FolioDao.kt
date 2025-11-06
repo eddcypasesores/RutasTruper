@@ -7,11 +7,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FolioDao {
 
-    @Query("SELECT * FROM folios WHERE rutaId = :rutaId ORDER BY id DESC")
+    @Query("SELECT * FROM folios WHERE rutaId = :rutaId ORDER BY folioTruper ASC")
     fun getByRuta(rutaId: Long): Flow<List<Folio>>
 
     @Query("SELECT * FROM folios WHERE folioTruper = :folioTruper LIMIT 1")
     suspend fun findByFolioTruper(folioTruper: String): Folio?
+
+    @Query("SELECT * FROM folios WHERE id = :folioId LIMIT 1")
+    suspend fun getById(folioId: Long): Folio?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(folio: Folio): Long

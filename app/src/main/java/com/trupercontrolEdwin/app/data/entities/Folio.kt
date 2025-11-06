@@ -16,5 +16,15 @@ data class Folio(
     val figuras: Int? = null,
     val tarifaTipo: String? = null,  // "1-100", "101-300", "301+"
     val estado: String = "Recibido",
-    val observaciones: String? = null
+    val observaciones: String? = null,
+    val solicitudPdfUri: String? = null,
+    val facturaPdfUri: String? = null,
+    val facturaXmlUri: String? = null,
+    val validacionMensaje: String? = null,
+    val validacionFotosUris: String? = null,
+    val cambioTexto: String? = null,
+    val facturacionExcelUri: String? = null,
+    val acuseCancelacionUri: String? = null,
+    val documentoPagoUri: String? = null,
+    val listadoCoincide: Boolean? = null
 )
