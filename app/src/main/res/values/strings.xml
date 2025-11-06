@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Control de Rotulación Truper</string>
+
+    <!-- Pantallas -->
+    <string name="rutas">Rutas</string>
+    <string name="folios">Folios</string>
+    <string name="facturas">Facturas</string>
+    <string name="pagos">Pagos</string>
+    <string name="reportes">Reportes</string>
+    <string name="configuracion">Configuración</string>
+
+    <!-- Botones -->
+    <string name="agregar">Agregar</string>
+    <string name="guardar">Guardar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="exportar_respaldo">Exportar respaldo</string>
+    <string name="cambiar_carpeta">Cambiar carpeta</string>
+
+    <!-- Mensajes -->
+    <string name="respaldo_creado">Respaldo creado correctamente</string>
+    <string name="error_respaldo">Hubo un error al crear el respaldo</string>
+</resources>
