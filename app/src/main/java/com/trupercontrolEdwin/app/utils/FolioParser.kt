@@ -24,27 +24,43 @@ object FolioParser {
         val comentarios: String = ""
     )
 
+    data class FacturaData(
+        val folioFactura: String,
+        val total: Double
+    )
+
+    fun parsearDocumentoFactura(texto: String): FacturaData? {
+        val folio = Regex("(Folio Fiscal|UUID).+?([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})", RegexOption.IGNORE_CASE)
+            .find(texto)?.groupValues?.get(2)?.uppercase()
+
+        val total = Regex("""Total\s+\$([\d,]+\.\d{2})""")
+            .find(texto)?.groupValues?.get(1)?.replace(",", "")?.toDoubleOrNull()
+
+        if (folio == null || total == null) return null
+        return FacturaData(folio, total)
+    }
+
     fun parseSolicitud(texto: String): SolicitudData? {
-        val folio = Regex("Folio\\s*[:#-]?\\s*(\\d{4,6})", RegexOption.IGNORE_CASE)
+        val folio = Regex("""Folio\s*[:#-]?\s*(\d{4,6})""", RegexOption.IGNORE_CASE)
             .find(texto)?.groupValues?.getOrNull(1)
             ?: return null
 
-        val nombre = Regex("Nombre (del negocio|de la ferreter[aí]a|de la tienda)\\s*:?\\s*(.+)", RegexOption.IGNORE_CASE)
+        val nombre = Regex("""Nombre (del negocio|de la ferreter[aí]a|de la tienda)\s*:?\s*(.+)""", RegexOption.IGNORE_CASE)
             .find(texto)?.groupValues?.getOrNull(2)?.lineOrNull()
 
-        val tipo = Regex("Fachada\\s*(principal|frontal|tipo)\\s*:?\\s*(.+)", RegexOption.IGNORE_CASE)
+        val tipo = Regex("""Fachada\s*(principal|frontal|tipo)\s*:?\s*(.+)""", RegexOption.IGNORE_CASE)
             .find(texto)?.groupValues?.getOrNull(2)?.lineOrNull()
 
-        val direccion = Regex("(Direcci[oó]n|Domicilio)\\s*:?\\s*(.+)", RegexOption.IGNORE_CASE)
+        val direccion = Regex("""(Direcci[oó]n|Domicilio)\s*:?\s*(.+)""", RegexOption.IGNORE_CASE)
             .find(texto)?.groupValues?.getOrNull(2)?.lineOrNull()
 
-        val metros = Regex("Total\\s*:?\\s*(\\d{1,4}(?:[.,]\\d{1,2})?)\\s*(m2|m²)", RegexOption.IGNORE_CASE)
+        val metros = Regex("""Total\s*:?\s*(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)""", RegexOption.IGNORE_CASE)
             .find(texto)
             ?.groupValues
             ?.getOrNull(1)
             ?.replace(",", ".")
             ?.toDoubleOrNull()
-            ?: Regex("\\b(\\d{1,4}(?:[.,]\\d{1,2})?)\\s*(m2|m²)\\b", RegexOption.IGNORE_CASE)
+            ?: Regex("""\b(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)\b""", RegexOption.IGNORE_CASE)
                 .find(texto)
                 ?.groupValues
                 ?.getOrNull(1)
@@ -61,23 +77,23 @@ object FolioParser {
     }
 
     fun parseCambio(texto: String): CambioData? {
-        val folio = Regex("Folio\\s*[:#-]?\\s*(\\d{4,6})", RegexOption.IGNORE_CASE)
+        val folio = Regex("""Folio\s*[:#-]?\s*(\d{4,6})""", RegexOption.IGNORE_CASE)
             .find(texto)?.groupValues?.getOrNull(1) ?: return null
 
-        val solicitud = Regex("(trae|solicitud).*?(\\d{1,4}(?:[.,]\\d{1,2})?)\\s*(m2|m²)", RegexOption.IGNORE_CASE)
+        val solicitud = Regex("""(trae|solicitud).*?(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)""", RegexOption.IGNORE_CASE)
             .find(texto)?.groupValues?.getOrNull(2)?.normalizeDouble()
 
-        val incremento = Regex("(Incrementa|Disminuye).*?(\\d{1,4}(?:[.,]\\d{1,2})?)\\s*(m2|m²)", RegexOption.IGNORE_CASE)
+        val incremento = Regex("""(Incrementa|Disminuye).*?(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)""", RegexOption.IGNORE_CASE)
             .find(texto)?.groupValues?.getOrNull(2)?.normalizeDouble()
 
-        val total = Regex("Total.*?(\\d{1,4}(?:[.,]\\d{1,2})?)\\s*(m2|m²)", RegexOption.IGNORE_CASE)
+        val total = Regex("""Total.*?(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)""", RegexOption.IGNORE_CASE)
             .find(texto)?.groupValues?.getOrNull(1)?.normalizeDouble()
 
         val comentarios = buildString {
             if (texto.contains("mayorista", ignoreCase = true)) {
                 append("Cliente mayorista. ")
             }
-            val autorizo = Regex("autoriz[oó]" , RegexOption.IGNORE_CASE).find(texto)
+            val autorizo = Regex("""autoriz[oó]""" , RegexOption.IGNORE_CASE).find(texto)
             if (autorizo != null) {
                 append("Autorizado por cliente. ")
             }

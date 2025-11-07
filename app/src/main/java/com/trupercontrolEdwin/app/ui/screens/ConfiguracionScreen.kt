@@ -15,6 +15,7 @@ import com.trupercontrolEdwin.app.utils.BackupManager
 import kotlinx.coroutines.launch
 import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfiguracionScreen(navController: NavController) {
     val context = LocalContext.current

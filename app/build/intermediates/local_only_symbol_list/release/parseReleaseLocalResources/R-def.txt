@@ -1,0 +1,20 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color fondo_oscuro
+color white
+string agregar
+string app_name
+string cambiar_carpeta
+string cancelar
+string configuracion
+string error_respaldo
+string exportar_respaldo
+string facturas
+string folios
+string guardar
+string pagos
+string reportes
+string respaldo_creado
+string rutas
+style Theme.ControlRotulaciones

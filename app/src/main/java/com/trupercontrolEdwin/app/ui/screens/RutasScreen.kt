@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,10 +27,10 @@ import com.trupercontrolEdwin.app.data.database.AppDatabase
 import com.trupercontrolEdwin.app.data.entities.Ruta
 import com.trupercontrolEdwin.app.utils.OcrProcessor
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectAsState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RutasScreen(navController: NavController) {
     val context = LocalContext.current
@@ -78,7 +79,7 @@ fun RutasScreen(navController: NavController) {
                 title = { Text("Rutas") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Regresar")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Regresar")
                     }
                 }
             )
@@ -86,7 +87,7 @@ fun RutasScreen(navController: NavController) {
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(onClick = { mostrarDialogoRuta = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar ruta")
+                Icon(Icons.Filled.Add, contentDescription = "Agregar ruta")
             }
         }
     ) { padding ->
@@ -123,7 +124,7 @@ fun RutasScreen(navController: NavController) {
                                 AssistChip(
                                     onClick = {},
                                     label = { Text("Folios esperados: ${lista.size}") },
-                                    leadingIcon = { Icon(Icons.Default.ListAlt, contentDescription = null) }
+                                    leadingIcon = { Icon(Icons.Filled.ListAlt, contentDescription = null) }
                                 )
                                 if (lista.isNotEmpty()) {
                                     Spacer(Modifier.height(4.dp))

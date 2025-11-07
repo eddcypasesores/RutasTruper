@@ -10,8 +10,14 @@ interface FacturaDao {
     @Query("SELECT * FROM facturas WHERE folioId = :folioId")
     fun getByFolio(folioId: Long): Flow<List<Factura>>
 
+    @Query("SELECT * FROM facturas")
+    suspend fun getAllSimple(): List<Factura>
+
     @Query("SELECT * FROM facturas WHERE estatus = 'Pendiente'")
     fun getPendientes(): Flow<List<Factura>>
+
+    @Query("SELECT * FROM facturas WHERE folioFactura = :folioFactura LIMIT 1")
+    suspend fun getByFolioFactura(folioFactura: String): Factura?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(factura: Factura): Long

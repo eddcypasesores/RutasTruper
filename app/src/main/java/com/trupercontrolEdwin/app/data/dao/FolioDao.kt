@@ -10,6 +10,12 @@ interface FolioDao {
     @Query("SELECT * FROM folios WHERE rutaId = :rutaId ORDER BY folioTruper ASC")
     fun getByRuta(rutaId: Long): Flow<List<Folio>>
 
+    @Query("SELECT * FROM folios WHERE rutaId = :rutaId ORDER BY folioTruper ASC")
+    suspend fun getByRutaSimple(rutaId: Long): List<Folio>
+
+    @Query("SELECT * FROM folios")
+    suspend fun getAllSimple(): List<Folio>
+
     @Query("SELECT * FROM folios WHERE folioTruper = :folioTruper LIMIT 1")
     suspend fun findByFolioTruper(folioTruper: String): Folio?
 

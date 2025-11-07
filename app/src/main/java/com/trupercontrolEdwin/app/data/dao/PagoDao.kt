@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PagoDao {
 
+    @Query("SELECT * FROM pagos")
+    suspend fun getAllSimple(): List<Pago>
+
     @Query("SELECT * FROM pagos WHERE facturaId = :facturaId")
     fun getByFactura(facturaId: Long): Flow<List<Pago>>
 

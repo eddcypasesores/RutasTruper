@@ -2,6 +2,7 @@ package com.trupercontrolEdwin.app.ui.screens
 
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -28,11 +30,11 @@ import com.trupercontrolEdwin.app.utils.ExcelGenerator
 import com.trupercontrolEdwin.app.utils.FolioParser
 import com.trupercontrolEdwin.app.utils.PdfReader
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectAsState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoliosScreen(navController: NavController, rutaId: Long) {
     val context = LocalContext.current
@@ -77,12 +79,12 @@ fun FoliosScreen(navController: NavController, rutaId: Long) {
                 title = { Text("Folios") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
                 actions = {
                     IconButton(onClick = { solicitudLauncher.launch(arrayOf("application/pdf")) }) {
-                        Icon(Icons.Default.Add, contentDescription = "Importar solicitud")
+                        Icon(Icons.Filled.Add, contentDescription = "Importar solicitud")
                     }
                 }
             )
@@ -266,7 +268,7 @@ private fun FolioCard(
             Text("m² solicitud: ${"%.2f".format(metros)}")
             Text("m² finales: ${"%.2f".format(finales)}")
             Text("Figuras: $figuras | Tarifa: $tarifa")
-            Text("Subtotal: $${"%,.2f".format(subtotal)} | IVA: $${"%,.2f".format(iva)} | Total: $${"%,.2f".format(total)}")
+            Text("Subtotal: $${ "%,.2f".format(subtotal)} | IVA: $${ "%,.2f".format(iva)} | Total: $${ "%,.2f".format(total)}")
             Spacer(Modifier.height(8.dp))
             Text("Estado: ${folio.estado}", style = MaterialTheme.typography.titleSmall)
             folio.observaciones?.takeIf { it.isNotBlank() }?.let {
@@ -379,25 +381,31 @@ private fun DialogEditarFolio(
 }
 
 @Composable
-private fun DialogMensajeValidacion(
+fun DialogMensajeValidacion(
     mensaje: String,
     onDismiss: () -> Unit
 ) {
-    val clipboard = LocalClipboardManager.current
+    val clipboardManager = LocalClipboardManager.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Mensaje de validación") },
         text = { Text(mensaje) },
         confirmButton = {
             TextButton(onClick = {
-                clipboard.setText(AnnotatedString(mensaje))
+                clipboardManager.setText(AnnotatedString(mensaje))
                 onDismiss()
-            }) { Text("Copiar") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cerrar") }
+            }) { Text("Copiar y cerrar") }
         }
     )
+}
+
+
+private suspend fun generarExcel(context: Context, folios: List<Folio>): File {
+    return withContext(Dispatchers.IO) {
+        val carpeta = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Rotulaciones_Truper")
+        return@withContext ExcelGenerator.generarExcelParaFolios(context, folios, carpeta)
+    }
 }
 
 private suspend fun procesarSolicitud(
@@ -409,56 +417,38 @@ private suspend fun procesarSolicitud(
     snackbarHostState: SnackbarHostState
 ) {
     withContext(Dispatchers.IO) {
-        try {
-            val texto = PdfReader.leerPdf(context, uri)
-            val solicitud = FolioParser.parseSolicitud(texto)
-            if (solicitud == null) {
-                withContext(Dispatchers.Main) {
-                    snackbarHostState.showSnackbar("No se identificó un folio en el PDF")
-                }
-                return@withContext
-            }
-            val coincide = ruta?.foliosEsperados
-                ?.split(',')
-                ?.map { it.trim() }
-                ?.any { it == solicitud.folio } ?: false
-            val existente = db.folioDao().findByFolioTruper(solicitud.folio)
-            if (existente == null) {
-                val nuevo = Folio(
-                    rutaId = rutaId,
-                    folioTruper = solicitud.folio,
-                    nombreEstablecimiento = solicitud.nombreNegocio,
-                    direccion = solicitud.direccion,
-                    tipoFachada = solicitud.tipoFachada,
-                    m2Reportados = solicitud.metrosReportados,
-                    m2Final = solicitud.metrosReportados,
-                    tarifaTipo = "1-100",
-                    solicitudPdfUri = uri.toString(),
-                    listadoCoincide = coincide,
-                    estado = "Recibido"
-                )
-                db.folioDao().insert(nuevo)
-            } else {
-                val actualizado = existente.copy(
-                    rutaId = rutaId,
-                    nombreEstablecimiento = solicitud.nombreNegocio ?: existente.nombreEstablecimiento,
-                    direccion = solicitud.direccion ?: existente.direccion,
-                    tipoFachada = solicitud.tipoFachada ?: existente.tipoFachada,
-                    m2Reportados = solicitud.metrosReportados ?: existente.m2Reportados,
-                    m2Final = existente.m2Final ?: solicitud.metrosReportados,
-                    solicitudPdfUri = uri.toString(),
-                    listadoCoincide = coincide,
-                    estado = if (existente.estado == "Recibido") "Por validar" else existente.estado
-                )
-                db.folioDao().update(actualizado)
-            }
+        val texto = PdfReader.leerPdf(context, uri)
+        val resultado = FolioParser.parseSolicitud(texto)
+        if (resultado == null) {
             withContext(Dispatchers.Main) {
-                snackbarHostState.showSnackbar("Solicitud procesada para folio ${solicitud.folio}")
+                snackbarHostState.showSnackbar("No se pudo interpretar el PDF de la solicitud.")
             }
-        } catch (e: Exception) {
+            return@withContext
+        }
+
+        val foliosActuales = db.folioDao().getByRutaSimple(rutaId).map { it.folioTruper }
+
+        if (foliosActuales.contains(resultado.folio)) {
             withContext(Dispatchers.Main) {
-                snackbarHostState.showSnackbar("Error al procesar PDF: ${e.localizedMessage}")
+                snackbarHostState.showSnackbar("Folio ${resultado.folio} ya existe, se omite.")
             }
+            return@withContext
+        }
+
+        val folioNuevo = Folio(
+            rutaId = rutaId,
+            folioTruper = resultado.folio,
+            nombreEstablecimiento = resultado.nombreNegocio,
+            direccion = resultado.direccion,
+            m2Reportados = resultado.metrosReportados,
+            solicitudPdfUri = uri.toString(),
+            estado = "Solicitud importada",
+            listadoCoincide = ruta?.foliosEsperados?.contains(resultado.folio) ?: false
+        )
+        db.folioDao().insert(folioNuevo)
+
+        withContext(Dispatchers.Main) {
+            snackbarHostState.showSnackbar("Se importó el folio ${resultado.folio}.")
         }
     }
 }
@@ -471,37 +461,40 @@ private suspend fun procesarDocumento(
     snackbarHostState: SnackbarHostState
 ) {
     withContext(Dispatchers.IO) {
-        try {
-            val type = context.contentResolver.getType(uri) ?: ""
-            val actualizado = if (type.contains("xml")) {
-                folio.copy(facturaXmlUri = uri.toString(), estado = "Pendiente de pago")
-            } else {
-                val texto = PdfReader.leerPdf(context, uri)
-                when {
-                    PdfReader.esAvisoPago(texto) -> folio.copy(documentoPagoUri = uri.toString(), estado = "Pagado")
-                    PdfReader.esAcuseCancelacion(texto) -> folio.copy(acuseCancelacionUri = uri.toString(), estado = "Cancelado")
-                    else -> folio.copy(facturaPdfUri = uri.toString(), estado = "Pendiente de pago")
-                }
-            }
-            db.folioDao().update(actualizado)
-            val mensaje = when (actualizado.estado) {
-                "Pagado" -> "Documento de pago registrado"
-                "Cancelado" -> "Acuse de cancelación registrado"
-                "Pendiente de pago" -> "Factura registrada"
-                else -> "Documento cargado"
-            }
+        val texto = PdfReader.leerPdf(context, uri)
+        val facturaData = FolioParser.parsearDocumentoFactura(texto)
+
+        if (facturaData == null) {
             withContext(Dispatchers.Main) {
-                snackbarHostState.showSnackbar("${folio.folioTruper}: $mensaje")
+                snackbarHostState.showSnackbar("No se pudo extraer folio o total del documento.")
             }
-        } catch (e: Exception) {
+            return@withContext
+        }
+
+        val yaExiste = db.facturaDao().getByFolioFactura(facturaData.folioFactura) != null
+
+        if (yaExiste) {
             withContext(Dispatchers.Main) {
-                snackbarHostState.showSnackbar("Error al procesar documento: ${e.localizedMessage}")
+                snackbarHostState.showSnackbar("La factura ${facturaData.folioFactura} ya está registrada.")
             }
+            return@withContext
+        }
+
+        db.facturaDao().insert(
+            com.trupercontrolEdwin.app.data.entities.Factura(
+                folioId = folio.id,
+                folioFactura = facturaData.folioFactura,
+                total = facturaData.total,
+                subtotal = facturaData.total / 1.16,
+                iva = facturaData.total - (facturaData.total / 1.16),
+                estatus = "Aceptada"
+            )
+        )
+
+        db.folioDao().update(folio.copy(estado = "Factura importada"))
+
+        withContext(Dispatchers.Main) {
+            snackbarHostState.showSnackbar("Factura ${facturaData.folioFactura} ($${ "%,.2f".format(facturaData.total)}) importada y asociada.")
         }
     }
-}
-
-private suspend fun generarExcel(context: Context, folios: List<Folio>): File = withContext(Dispatchers.IO) {
-    val carpetaDestino = File(context.getExternalFilesDir(null), "facturacion")
-    ExcelGenerator.generarExcelParaFolios(context, folios, carpetaDestino)
 }

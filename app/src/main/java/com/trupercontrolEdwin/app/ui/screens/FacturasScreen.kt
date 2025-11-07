@@ -16,6 +16,7 @@ import com.trupercontrolEdwin.app.data.database.AppDatabase
 import com.trupercontrolEdwin.app.data.entities.Factura
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FacturasScreen(navController: NavController, folioId: Long) {
     val context = LocalContext.current
@@ -54,7 +55,7 @@ fun FacturasScreen(navController: NavController, folioId: Long) {
                     Card(Modifier.fillMaxWidth().padding(8.dp)) {
                         Column(Modifier.padding(12.dp)) {
                             Text("Factura: ${f.folioFactura}")
-                            Text("Total: $${"%,.2f".format(f.total)}")
+                            Text("Total: $${ "%,.2f".format(f.total)}")
                             Text("Estatus: ${f.estatus}")
                             if (!f.motivoCancelacion.isNullOrEmpty()) {
                                 Text("Motivo cancelación: ${f.motivoCancelacion}")

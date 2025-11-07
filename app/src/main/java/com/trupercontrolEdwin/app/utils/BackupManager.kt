@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.trupercontrolEdwin.app.data.database.AppDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -22,9 +23,12 @@ class BackupManager(
     private val gson = Gson()
 
     suspend fun exportar(rutaDestino: File): Boolean = withContext(Dispatchers.IO) {
-        val rutas = db.rutaDao().getAll().firstOrNull() ?: emptyList()
-        // nota: getAll() es Flow, aquí habría que crear otro DAO que regrese List<Ruta>
-        val backup = BackupData(rutas, emptyList(), emptyList(), emptyList())
+        val rutas = db.rutaDao().getAll().first()
+        val folios = db.folioDao().getAllSimple()
+        val facturas = db.facturaDao().getAllSimple()
+        val pagos = db.pagoDao().getAllSimple()
+
+        val backup = BackupData(rutas, folios, facturas, pagos)
         rutaDestino.writeText(gson.toJson(backup))
         true
     }
