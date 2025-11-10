@@ -3,6 +3,7 @@ local
 color black
 color fondo_oscuro
 color white
+mipmap logo
 string agregar
 string app_name
 string cambiar_carpeta

@@ -98,6 +98,7 @@ fun RutasScreen(navController: NavController) {
                                 estado = "Coincide",
                                 nombreEstablecimiento = solicitud.nombreNegocio,
                                 direccion = solicitud.direccion,
+                                tipoFachada = solicitud.tipoFachada,
                                 m2Reportados = solicitud.metrosReportados
                             ))
                         } else {
@@ -107,11 +108,12 @@ fun RutasScreen(navController: NavController) {
                                 estado = "Sobrante",
                                 nombreEstablecimiento = solicitud.nombreNegocio,
                                 direccion = solicitud.direccion,
+                                tipoFachada = solicitud.tipoFachada,
                                 m2Reportados = solicitud.metrosReportados
                             ))
                         }
                     }
-                    
+
                     solicitudes.size
                 }
 
