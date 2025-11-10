@@ -8,21 +8,27 @@ import org.apache.pdfbox.text.PDFTextStripper
 object PdfReader {
 
     /**
-     * Lee un PDF desde un Uri (PDF de Truper, acuse de cancelación, aviso de pago)
-     * y devuelve TODO el texto.
+     * Lee un PDF desde un Uri y devuelve el texto.
+     * Devuelve una cadena vacía si el PDF no se puede leer o causa un error.
      */
     fun leerPdf(context: Context, uri: Uri): String {
-        context.contentResolver.openInputStream(uri).use { input ->
-            val doc = PDDocument.load(input)
-            val stripper = PDFTextStripper()
-            val texto = stripper.getText(doc)
-            doc.close()
-            return texto
+        return try {
+            context.contentResolver.openInputStream(uri).use { input ->
+                val doc = PDDocument.load(input)
+                val stripper = PDFTextStripper()
+                val texto = stripper.getText(doc)
+                doc.close()
+                texto
+            }
+        } catch (t: Throwable) {
+            // Capturamos Throwable para incluir errores críticos como OutOfMemoryError.
+            // Si algo sale mal (PDF corrupto, muy grande, etc.), devolvemos una cadena vacía.
+            ""
         }
     }
 
     /**
-     * Intenta detectar si es un acuse SAT de cancelación (como el que subiste).
+     * Intenta detectar si es un acuse SAT de cancelación.
      */
     fun esAcuseCancelacion(texto: String): Boolean {
         return texto.contains("Acuse de solicitud de Cancelación", ignoreCase = true) ||
@@ -30,7 +36,7 @@ object PdfReader {
     }
 
     /**
-     * Intenta detectar si es aviso de pago TRUPER (como NP0000700139.PDF)
+     * Intenta detectar si es aviso de pago TRUPER.
      */
     fun esAvisoPago(texto: String): Boolean {
         return texto.contains("AVISO DE PAGO A PROVEEDOR NACIONAL", ignoreCase = true) ||

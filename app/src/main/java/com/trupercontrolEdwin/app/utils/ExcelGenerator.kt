@@ -1,10 +1,8 @@
 package com.trupercontrolEdwin.app.utils
 
-import android.content.Context
 import com.trupercontrolEdwin.app.data.entities.Folio
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import java.io.File
-import java.io.FileOutputStream
+import java.io.OutputStream
 
 object ExcelGenerator {
 
@@ -13,10 +11,9 @@ object ExcelGenerator {
      * Folio, Cliente, m2, Figuras, Tarifa, Subtotal, IVA, Total
      */
     fun generarExcelParaFolios(
-        context: Context,
         folios: List<Folio>,
-        carpetaDestino: File
-    ): File {
+        outputStream: OutputStream
+    ) {
         val wb = XSSFWorkbook()
         val sheet = wb.createSheet("Facturación")
 
@@ -53,13 +50,9 @@ object ExcelGenerator {
         // autosize
         (0..7).forEach { sheet.autoSizeColumn(it) }
 
-        carpetaDestino.mkdirs()
-        val outFile = File(carpetaDestino, "facturacion_rotulaciones.xlsx")
-        FileOutputStream(outFile).use { fos ->
+        outputStream.use { fos ->
             wb.write(fos)
         }
         wb.close()
-
-        return outFile
     }
 }

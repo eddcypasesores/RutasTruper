@@ -9,6 +9,7 @@ data class Ruta(
     val nombre: String,
     val fecha: String? = null,
     val fotoListadoUri: String? = null,
-    val foliosEsperados: String? = null,
+    val foliosEsperados: String? = null, // Folios de la tabla de imagen
+    val foliosRecibidosPdf: String? = null, // Folios de los PDFs
     val notas: String? = null
 )

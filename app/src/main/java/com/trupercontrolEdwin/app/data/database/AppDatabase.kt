@@ -9,7 +9,7 @@ import com.trupercontrolEdwin.app.data.entities.*
 
 @Database(
     entities = [Ruta::class, Folio::class, Factura::class, Pago::class],
-    version = 2,
+    version = 3, // Incrementar la versión para forzar la reconstrucción
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

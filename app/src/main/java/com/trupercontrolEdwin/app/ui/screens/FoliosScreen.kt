@@ -2,7 +2,6 @@ package com.trupercontrolEdwin.app.ui.screens
 
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -11,8 +10,8 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
@@ -24,15 +23,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.trupercontrolEdwin.app.data.database.AppDatabase
 import com.trupercontrolEdwin.app.data.entities.Folio
-import com.trupercontrolEdwin.app.data.entities.Ruta
 import com.trupercontrolEdwin.app.utils.CalculoRotulacion
 import com.trupercontrolEdwin.app.utils.ExcelGenerator
 import com.trupercontrolEdwin.app.utils.FolioParser
-import com.trupercontrolEdwin.app.utils.PdfReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,50 +37,53 @@ fun FoliosScreen(navController: NavController, rutaId: Long) {
     val db = remember { AppDatabase.get(context) }
     val scope = rememberCoroutineScope()
 
-    var ruta by remember { mutableStateOf<Ruta?>(null) }
-    val folios by db.folioDao().getByRuta(rutaId).collectAsState(initial = emptyList())
+    val todosLosFolios by db.folioDao().getByRuta(rutaId).collectAsState(initial = emptyList())
+    var busqueda by remember { mutableStateOf("") }
+
+    val foliosFiltrados = remember(busqueda, todosLosFolios) {
+        if (busqueda.isBlank()) {
+            todosLosFolios
+        } else {
+            todosLosFolios.filter {
+                it.folioTruper.contains(busqueda, ignoreCase = true) ||
+                it.nombreEstablecimiento?.contains(busqueda, ignoreCase = true) == true
+            }
+        }
+    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     var mostrarDialogoCambio by remember { mutableStateOf(false) }
     var textoCambio by remember { mutableStateOf("") }
     var folioEnEdicion by remember { mutableStateOf<Folio?>(null) }
-    var mensajeValidacion by remember { mutableStateOf<String?>(null) }
-    var folioParaDocumento by remember { mutableStateOf<Folio?>(null) }
+    var mensajeValidacion by remember { mutableStateOf<Folio?>(null) }
 
-    LaunchedEffect(rutaId) {
-        ruta = db.rutaDao().getById(rutaId)
-    }
-
-    val solicitudLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) {
+    val excelLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    ) { uri: Uri? ->
+        uri?.let {
             scope.launch {
-                procesarSolicitud(context, db, rutaId, ruta, uri, snackbarHostState)
+                val ok = generarExcel(context, foliosFiltrados, it)
+                if (ok) {
+                    snackbarHostState.showSnackbar("Excel generado correctamente")
+                } else {
+                    snackbarHostState.showSnackbar("Error al generar Excel")
+                }
             }
         }
-    }
-
-    val documentoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        val folioTarget = folioParaDocumento
-        if (uri != null && folioTarget != null) {
-            scope.launch {
-                procesarDocumento(context, db, folioTarget, uri, snackbarHostState)
-            }
-        }
-        folioParaDocumento = null
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Folios") },
+                title = { Text("Folios de la Ruta") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { solicitudLauncher.launch(arrayOf("application/pdf")) }) {
-                        Icon(Icons.Filled.Add, contentDescription = "Importar solicitud")
+                    IconButton(onClick = { /* Lógica para agregar un folio manualmente si se desea */ }) {
+                        Icon(Icons.Filled.Add, contentDescription = "Agregar Folio")
                     }
                 }
             )
@@ -96,27 +95,24 @@ fun FoliosScreen(navController: NavController, rutaId: Long) {
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            ruta?.let {
-                RutaResumen(it)
-                Spacer(Modifier.height(16.dp))
-            }
-
+            OutlinedTextField(
+                value = busqueda,
+                onValueChange = { busqueda = it },
+                label = { Text("Buscar por folio o cliente") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            )
+            Spacer(Modifier.height(8.dp))
             Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = { mostrarDialogoCambio = true }) {
                     Text("Registrar cambio")
                 }
                 Button(onClick = {
-                    scope.launch {
-                        if (folios.isEmpty()) {
-                            snackbarHostState.showSnackbar("No hay folios para generar Excel")
-                        } else {
-                            val archivo = generarExcel(context, folios)
-                            folios.forEach { folio ->
-                                val nuevoEstado = if (folio.estado == "Validado") "En facturación" else folio.estado
-                                db.folioDao().update(folio.copy(facturacionExcelUri = archivo.absolutePath, estado = nuevoEstado))
-                            }
-                            snackbarHostState.showSnackbar("Excel generado: ${archivo.name}")
-                        }
+                    if (foliosFiltrados.isEmpty()) {
+                        scope.launch { snackbarHostState.showSnackbar("No hay folios para generar Excel") }
+                    } else {
+                        excelLauncher.launch("facturacion_rotulaciones.xlsx")
                     }
                 }) {
                     Text("Generar Excel")
@@ -126,25 +122,12 @@ fun FoliosScreen(navController: NavController, rutaId: Long) {
             Spacer(Modifier.height(16.dp))
 
             LazyColumn(Modifier.fillMaxSize()) {
-                items(folios) { folio ->
+                items(foliosFiltrados) { folio ->
                     FolioCard(
                         folio = folio,
-                        ruta = ruta,
                         onEditar = { folioEnEdicion = folio },
-                        onGenerarValidacion = {
-                            val mensaje = FolioParser.generarMensajeValidacion(folio, ruta)
-                            mensajeValidacion = mensaje
-                            scope.launch {
-                                db.folioDao().update(folio.copy(validacionMensaje = mensaje, estado = "En validación"))
-                            }
-                        },
-                        onFacturas = {
-                            navController.navigate("facturas/${folio.id}")
-                        },
-                        onProcesarDocumento = {
-                            folioParaDocumento = folio
-                            documentoLauncher.launch(arrayOf("application/pdf", "application/xml", "text/xml"))
-                        },
+                        onGenerarValidacion = { mensajeValidacion = folio },
+                        onFacturas = { navController.navigate("facturas/${folio.id}") },
                         onMarcarValidado = {
                             scope.launch {
                                 db.folioDao().update(folio.copy(estado = "Validado"))
@@ -168,7 +151,7 @@ fun FoliosScreen(navController: NavController, rutaId: Long) {
                     } else {
                         val folio = db.folioDao().findByFolioTruper(cambio.folio)
                         if (folio == null) {
-                            snackbarHostState.showSnackbar("No existe un folio ${cambio.folio} en la ruta")
+                            snackbarHostState.showSnackbar("No existe un folio ${cambio.folio} en esta ruta")
                         } else {
                             val actualizado = folio.copy(
                                 m2Reportados = cambio.metrosSolicitud ?: folio.m2Reportados,
@@ -208,29 +191,11 @@ fun FoliosScreen(navController: NavController, rutaId: Long) {
     }
 
     if (mensajeValidacion != null) {
+        val mensaje = FolioParser.generarMensajeValidacion(mensajeValidacion!!, null)
         DialogMensajeValidacion(
-            mensaje = mensajeValidacion!!,
+            mensaje = mensaje,
             onDismiss = { mensajeValidacion = null }
         )
-    }
-}
-
-@Composable
-private fun RutaResumen(ruta: Ruta) {
-    Card(Modifier.padding(horizontal = 16.dp)) {
-        Column(Modifier.padding(16.dp)) {
-            Text(ruta.nombre, style = MaterialTheme.typography.titleMedium)
-            ruta.fecha?.let { Text("Fecha: $it") }
-            ruta.foliosEsperados?.takeIf { it.isNotBlank() }?.let {
-                Spacer(Modifier.height(8.dp))
-                val lista = it.split(',').map { folio -> folio.trim() }.filter { folio -> folio.isNotEmpty() }
-                Text("Folios esperados (${lista.size}): ${lista.joinToString(", ")}", style = MaterialTheme.typography.bodySmall)
-            }
-            ruta.notas?.takeIf { it.isNotBlank() }?.let {
-                Spacer(Modifier.height(8.dp))
-                Text("Notas:\n$it")
-            }
-        }
     }
 }
 
@@ -238,11 +203,9 @@ private fun RutaResumen(ruta: Ruta) {
 @OptIn(ExperimentalLayoutApi::class)
 private fun FolioCard(
     folio: Folio,
-    ruta: Ruta?,
     onEditar: () -> Unit,
     onGenerarValidacion: () -> Unit,
     onFacturas: () -> Unit,
-    onProcesarDocumento: () -> Unit,
     onMarcarValidado: () -> Unit
 ) {
     Card(
@@ -254,11 +217,7 @@ private fun FolioCard(
             Text("Folio TRUPER: ${folio.folioTruper}", style = MaterialTheme.typography.titleMedium)
             folio.nombreEstablecimiento?.let { Text("Cliente: $it") }
             folio.direccion?.let { Text("Dirección: $it") }
-            folio.tipoFachada?.let { Text("Tipo de fachada: $it") }
-            folio.listadoCoincide?.let {
-                val etiqueta = if (it) "Coincide con listado" else "No estaba en listado"
-                Text(etiqueta, color = if (it) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
-            }
+
             Spacer(Modifier.height(8.dp))
             val metros = folio.m2Reportados ?: 0.0
             val finales = folio.m2Final ?: metros
@@ -278,9 +237,8 @@ private fun FolioCard(
             Spacer(Modifier.height(12.dp))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = onEditar) { Text("Editar") }
-                OutlinedButton(onClick = onGenerarValidacion) { Text("Generar validación") }
-                OutlinedButton(onClick = onMarcarValidado) { Text("Marcar validado") }
-                OutlinedButton(onClick = onProcesarDocumento) { Text("Procesar PDF/XML") }
+                OutlinedButton(onClick = onGenerarValidacion) { Text("Validación") }
+                OutlinedButton(onClick = onMarcarValidado) { Text("Marcar Validado") }
                 TextButton(onClick = onFacturas) { Text("Facturas") }
             }
         }
@@ -400,101 +358,15 @@ fun DialogMensajeValidacion(
     )
 }
 
-
-private suspend fun generarExcel(context: Context, folios: List<Folio>): File {
+private suspend fun generarExcel(context: Context, folios: List<Folio>, uri: Uri): Boolean {
     return withContext(Dispatchers.IO) {
-        val carpeta = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "Rotulaciones_Truper")
-        return@withContext ExcelGenerator.generarExcelParaFolios(context, folios, carpeta)
-    }
-}
-
-private suspend fun procesarSolicitud(
-    context: Context,
-    db: AppDatabase,
-    rutaId: Long,
-    ruta: Ruta?,
-    uri: Uri,
-    snackbarHostState: SnackbarHostState
-) {
-    withContext(Dispatchers.IO) {
-        val texto = PdfReader.leerPdf(context, uri)
-        val resultado = FolioParser.parseSolicitud(texto)
-        if (resultado == null) {
-            withContext(Dispatchers.Main) {
-                snackbarHostState.showSnackbar("No se pudo interpretar el PDF de la solicitud.")
+        try {
+            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                ExcelGenerator.generarExcelParaFolios(folios, outputStream)
             }
-            return@withContext
-        }
-
-        val foliosActuales = db.folioDao().getByRutaSimple(rutaId).map { it.folioTruper }
-
-        if (foliosActuales.contains(resultado.folio)) {
-            withContext(Dispatchers.Main) {
-                snackbarHostState.showSnackbar("Folio ${resultado.folio} ya existe, se omite.")
-            }
-            return@withContext
-        }
-
-        val folioNuevo = Folio(
-            rutaId = rutaId,
-            folioTruper = resultado.folio,
-            nombreEstablecimiento = resultado.nombreNegocio,
-            direccion = resultado.direccion,
-            m2Reportados = resultado.metrosReportados,
-            solicitudPdfUri = uri.toString(),
-            estado = "Solicitud importada",
-            listadoCoincide = ruta?.foliosEsperados?.contains(resultado.folio) ?: false
-        )
-        db.folioDao().insert(folioNuevo)
-
-        withContext(Dispatchers.Main) {
-            snackbarHostState.showSnackbar("Se importó el folio ${resultado.folio}.")
-        }
-    }
-}
-
-private suspend fun procesarDocumento(
-    context: Context,
-    db: AppDatabase,
-    folio: Folio,
-    uri: Uri,
-    snackbarHostState: SnackbarHostState
-) {
-    withContext(Dispatchers.IO) {
-        val texto = PdfReader.leerPdf(context, uri)
-        val facturaData = FolioParser.parsearDocumentoFactura(texto)
-
-        if (facturaData == null) {
-            withContext(Dispatchers.Main) {
-                snackbarHostState.showSnackbar("No se pudo extraer folio o total del documento.")
-            }
-            return@withContext
-        }
-
-        val yaExiste = db.facturaDao().getByFolioFactura(facturaData.folioFactura) != null
-
-        if (yaExiste) {
-            withContext(Dispatchers.Main) {
-                snackbarHostState.showSnackbar("La factura ${facturaData.folioFactura} ya está registrada.")
-            }
-            return@withContext
-        }
-
-        db.facturaDao().insert(
-            com.trupercontrolEdwin.app.data.entities.Factura(
-                folioId = folio.id,
-                folioFactura = facturaData.folioFactura,
-                total = facturaData.total,
-                subtotal = facturaData.total / 1.16,
-                iva = facturaData.total - (facturaData.total / 1.16),
-                estatus = "Aceptada"
-            )
-        )
-
-        db.folioDao().update(folio.copy(estado = "Factura importada"))
-
-        withContext(Dispatchers.Main) {
-            snackbarHostState.showSnackbar("Factura ${facturaData.folioFactura} ($${ "%,.2f".format(facturaData.total)}) importada y asociada.")
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 }

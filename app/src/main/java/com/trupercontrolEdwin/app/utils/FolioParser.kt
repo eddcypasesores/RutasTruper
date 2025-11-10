@@ -3,18 +3,38 @@ package com.trupercontrolEdwin.app.utils
 import com.trupercontrolEdwin.app.data.entities.Folio
 import com.trupercontrolEdwin.app.data.entities.Ruta
 
-/**
- * Utilidad para interpretar los documentos (PDF o texto OCR) relacionados con los folios.
- */
 object FolioParser {
 
     data class SolicitudData(
         val folio: String,
         val nombreNegocio: String? = null,
-        val tipoFachada: String? = null,
         val direccion: String? = null,
         val metrosReportados: Double? = null
     )
+
+    fun parseSolicitud(texto: String): SolicitudData? {
+        val folio = Regex("""Folio:\s*(\d{5,6})""", RegexOption.IGNORE_CASE)
+            .find(texto)?.groupValues?.getOrNull(1)
+            ?: return null
+
+        val razonSocial = Regex("""Razón social del cliente:\s*(.*?)\n""", RegexOption.IGNORE_CASE)
+            .find(texto)?.groupValues?.getOrNull(1)?.trim()
+
+        val direccion = Regex("""Domicilio de la ferretería a rotular:\s*(.*?)\n""", RegexOption.IGNORE_CASE)
+            .find(texto)?.groupValues?.getOrNull(1)?.trim()
+
+        val metros = Regex("""Total de metros cuadrados a rotular:\s*(\d+\.\d{2})""", RegexOption.IGNORE_CASE)
+            .find(texto)?.groupValues?.getOrNull(1)?.toDoubleOrNull()
+
+        return SolicitudData(
+            folio = folio,
+            nombreNegocio = razonSocial,
+            direccion = direccion,
+            metrosReportados = metros
+        )
+    }
+
+    // ... (El resto del código se mantiene igual)
 
     data class CambioData(
         val folio: String,
@@ -38,42 +58,6 @@ object FolioParser {
 
         if (folio == null || total == null) return null
         return FacturaData(folio, total)
-    }
-
-    fun parseSolicitud(texto: String): SolicitudData? {
-        val folio = Regex("""Folio\s*[:#-]?\s*(\d{4,6})""", RegexOption.IGNORE_CASE)
-            .find(texto)?.groupValues?.getOrNull(1)
-            ?: return null
-
-        val nombre = Regex("""Nombre (del negocio|de la ferreter[aí]a|de la tienda)\s*:?\s*(.+)""", RegexOption.IGNORE_CASE)
-            .find(texto)?.groupValues?.getOrNull(2)?.lineOrNull()
-
-        val tipo = Regex("""Fachada\s*(principal|frontal|tipo)\s*:?\s*(.+)""", RegexOption.IGNORE_CASE)
-            .find(texto)?.groupValues?.getOrNull(2)?.lineOrNull()
-
-        val direccion = Regex("""(Direcci[oó]n|Domicilio)\s*:?\s*(.+)""", RegexOption.IGNORE_CASE)
-            .find(texto)?.groupValues?.getOrNull(2)?.lineOrNull()
-
-        val metros = Regex("""Total\s*:?\s*(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)""", RegexOption.IGNORE_CASE)
-            .find(texto)
-            ?.groupValues
-            ?.getOrNull(1)
-            ?.replace(",", ".")
-            ?.toDoubleOrNull()
-            ?: Regex("""\b(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)\b""", RegexOption.IGNORE_CASE)
-                .find(texto)
-                ?.groupValues
-                ?.getOrNull(1)
-                ?.replace(",", ".")
-                ?.toDoubleOrNull()
-
-        return SolicitudData(
-            folio = folio,
-            nombreNegocio = nombre,
-            tipoFachada = tipo,
-            direccion = direccion,
-            metrosReportados = metros
-        )
     }
 
     fun parseCambio(texto: String): CambioData? {

@@ -1,12 +1,13 @@
 package com.trupercontrolEdwin.app.utils
 
 import android.content.Context
+import android.net.Uri
 import com.google.gson.Gson
 import com.trupercontrolEdwin.app.data.database.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import java.io.File
+import java.io.OutputStream
 
 data class BackupData(
     val rutas: List<com.trupercontrolEdwin.app.data.entities.Ruta>,
@@ -22,15 +23,21 @@ class BackupManager(
 
     private val gson = Gson()
 
-    suspend fun exportar(rutaDestino: File): Boolean = withContext(Dispatchers.IO) {
-        val rutas = db.rutaDao().getAll().first()
-        val folios = db.folioDao().getAllSimple()
-        val facturas = db.facturaDao().getAllSimple()
-        val pagos = db.pagoDao().getAllSimple()
+    suspend fun exportar(uri: Uri): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val rutas = db.rutaDao().getAll().first()
+            val folios = db.folioDao().getAllSimple()
+            val facturas = db.facturaDao().getAllSimple()
+            val pagos = db.pagoDao().getAllSimple()
 
-        val backup = BackupData(rutas, folios, facturas, pagos)
-        rutaDestino.writeText(gson.toJson(backup))
-        true
+            val backup = BackupData(rutas, folios, facturas, pagos)
+            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                outputStream.write(gson.toJson(backup).toByteArray())
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     // igual se hace el importar: leer JSON → insertar en Room
