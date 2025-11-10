@@ -2,6 +2,7 @@ package com.trupercontrolEdwin.app.utils
 
 import com.trupercontrolEdwin.app.data.entities.Folio
 import com.trupercontrolEdwin.app.data.entities.Ruta
+import java.text.Normalizer
 
 object FolioParser {
 
@@ -25,6 +26,23 @@ object FolioParser {
                 """(?im)Nombre\s*(?:del\s*)?(?:establecimiento|negocio)\s*[:\-]\s*([^\r\n]+)""".toRegex(),
                 """(?im)Cliente\s*[:\-]\s*([^\r\n]+)""".toRegex()
             )
+        ) ?: findFieldValue(
+            texto,
+            listOf(
+                "Razón social del cliente",
+                "Nombre del cliente",
+                "Nombre del establecimiento"
+            )
+        )
+
+        val nombreFerreteria = findFieldValue(
+            texto,
+            listOf(
+                "Nombre de la ferretería a rotular",
+                "Nombre de la ferreteria a rotular",
+                "Nombre de la ferretería",
+                "Nombre del negocio"
+            )
         )
 
         val direccion = extractFirstMatch(
@@ -32,6 +50,14 @@ object FolioParser {
             listOf(
                 """(?im)Domicilio\s*(?:de\s*la\s*ferreter[ií]a\s*a\s*rotular)?\s*[:\-]\s*([^\r\n]+)""".toRegex(),
                 """(?im)Direcci[oó]n\s*(?:de\s*la\s*ferreter[ií]a)?\s*[:\-]\s*([^\r\n]+)""".toRegex()
+            )
+        ) ?: findFieldValue(
+            texto,
+            listOf(
+                "Domicilio de la ferretería a rotular",
+                "Dirección del establecimiento",
+                "Dirección de la ferretería",
+                "Dirección"
             )
         )
 
@@ -41,24 +67,43 @@ object FolioParser {
                 """(?im)Tipo(?:\s*de)?\s*fachada(?:\s*solicitada)?\s*[:\-]\s*([^\r\n]+)""".toRegex(),
                 """(?im)Tipo\s*de\s*r[oó]tulo\s*[:\-]\s*([^\r\n]+)""".toRegex()
             )
+        ) ?: findFieldValue(
+            texto,
+            listOf(
+                "Material de fachada",
+                "Material de fachada actual",
+                "Tipo de fachada",
+                "Tipo de rotulación"
+            )
         )
 
         val metros = run {
             val patrones = listOf(
                 """(?im)Total\s*de\s*metros\s*(?:cuadrados\s*)?a\s*rotular\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
                 """(?im)Metros\s*(?:cuadrados\s*)?(?:solicitados|a\s*rotular)\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
-                """(?im)M2\s*(?:solicitud|solicitados|a\s*rotular)\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex()
+                """(?im)M2\s*(?:solicitud|solicitados|a\s*rotular)\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
+                """(?im)Total\s*metros\s*(?:rotulados|solicitados)\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
+                """(?im)Total\s*m2\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
+                """(?im)Total\s+\$?\s*([0-9]+(?:[.,][0-9]{1,2})?)\s*(?:m2|m²)""".toRegex()
             )
             for (regex in patrones) {
                 val valor = regex.find(texto)?.groupValues?.getOrNull(1)?.normalizeDouble()
                 if (valor != null) return@run valor
             }
-            null
+            findFieldValue(
+                texto,
+                listOf(
+                    "Total metros rotulados",
+                    "Total metros solicitud",
+                    "Metros rotulados",
+                    "Metros totales"
+                )
+            )?.normalizeDouble()
         }
 
         return SolicitudData(
             folio = folio,
-            nombreNegocio = razonSocial,
+            nombreNegocio = nombreFerreteria ?: razonSocial,
             direccion = direccion,
             tipoFachada = tipoFachada,
             metrosReportados = metros
@@ -155,9 +200,49 @@ object FolioParser {
 
     private fun extractFirstMatch(texto: String, patrones: List<Regex>): String? {
         for (regex in patrones) {
-            val valor = regex.find(texto)?.groupValues?.getOrNull(1)?.trim()
+            val valor = regex.find(texto)?.groupValues?.getOrNull(1)?.lineOrNull()
             if (!valor.isNullOrEmpty()) {
                 return valor
+            }
+        }
+        return null
+    }
+
+    private fun findFieldValue(texto: String, etiquetas: List<String>): String? {
+        if (etiquetas.isEmpty()) return null
+        val normalizedEtiquetas = etiquetas.map { it.normalizeForComparison() }
+        val lineas = texto.lines()
+        for (index in lineas.indices) {
+            val lineaOriginal = lineas[index].trim()
+            if (lineaOriginal.isEmpty()) continue
+            val lineaNormalizada = lineaOriginal.normalizeForComparison()
+            val coincide = normalizedEtiquetas.indexOfFirst { etiqueta ->
+                lineaNormalizada.contains(etiqueta)
+            }
+            if (coincide == -1) continue
+
+            val valorDirecto = lineaOriginal.substringAfter(':', "").takeIf { it.isNotEmpty() }
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+                ?: lineaOriginal.substringAfter('-', "")
+                    .trim()
+                    .takeIf { it.isNotEmpty() && it.length < lineaOriginal.length }
+
+            val valorLimpio = valorDirecto?.cleanFieldValue()
+            if (!valorLimpio.isNullOrEmpty()) return valorLimpio
+
+            for (offset in 1..2) {
+                val siguiente = lineas.getOrNull(index + offset)?.trim().orEmpty()
+                if (siguiente.isEmpty()) continue
+                val siguienteNormalizado = siguiente.normalizeForComparison()
+                val esOtraEtiqueta = normalizedEtiquetas.any { etiqueta ->
+                    siguienteNormalizado.startsWith(etiqueta)
+                }
+                if (esOtraEtiqueta) break
+                if (siguiente.contains(':')) break
+                val valorSiguiente = siguiente.cleanFieldValue()
+                if (valorSiguiente.isNotEmpty()) return valorSiguiente
+                break
             }
         }
         return null
@@ -179,5 +264,16 @@ object FolioParser {
         return builder.toString().toDoubleOrNull()
     }
 
+    private fun String.cleanFieldValue(): String =
+        this.trim().trimStart(':', '-', '.', '·').trim().replace("\\s+".toRegex(), " ")
+
+    private fun String.normalizeForComparison(): String {
+        val sinTildes = Normalizer.normalize(this, Normalizer.Form.NFD)
+            .replace(ACENTO_REGEX, "")
+        return sinTildes.lowercase().replace("\\s+".toRegex(), " ").trim()
+    }
+
     private fun formatMetros(valor: Double): String = "${"%.2f".format(valor)} m²"
+
+    private val ACENTO_REGEX = "\\p{Mn}+".toRegex()
 }
