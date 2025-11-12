@@ -45,15 +45,15 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(3) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(4) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `rutas` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `fecha` TEXT, `fotoListadoUri` TEXT, `foliosEsperados` TEXT, `foliosRecibidosPdf` TEXT, `notas` TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `rutas` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `fecha` TEXT, `fotoListadoUri` TEXT, `foliosEsperados` TEXT, `foliosRecibidosPdf` TEXT, `notas` TEXT, `tablaCargada` INTEGER NOT NULL, `pdfsCargados` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `folios` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `rutaId` INTEGER NOT NULL, `folioTruper` TEXT NOT NULL, `nombreEstablecimiento` TEXT, `direccion` TEXT, `tipoFachada` TEXT, `m2Reportados` REAL, `m2Final` REAL, `figuras` INTEGER, `tarifaTipo` TEXT, `estado` TEXT NOT NULL, `observaciones` TEXT, `solicitudPdfUri` TEXT, `facturaPdfUri` TEXT, `facturaXmlUri` TEXT, `validacionMensaje` TEXT, `validacionFotosUris` TEXT, `cambioTexto` TEXT, `facturacionExcelUri` TEXT, `acuseCancelacionUri` TEXT, `documentoPagoUri` TEXT, `listadoCoincide` INTEGER)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `facturas` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `folioId` INTEGER NOT NULL, `folioFactura` TEXT NOT NULL, `folioFacturaNum` INTEGER, `fechaEmision` TEXT, `subtotal` REAL NOT NULL, `iva` REAL NOT NULL, `total` REAL NOT NULL, `estatus` TEXT NOT NULL, `motivoCancelacion` TEXT, `folioReemplaza` TEXT, `pdfUri` TEXT, `xmlUri` TEXT, `observaciones` TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `pagos` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `facturaId` INTEGER NOT NULL, `fechaPago` TEXT, `monto` REAL NOT NULL, `documentoPagoUri` TEXT, `referenciaBanco` TEXT, `tipo` TEXT)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '18d80bba1e268aa8d8fa572cd1977b39')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '142b9ee8bd26347e30fd12663ea77499')");
       }
 
       @Override
@@ -105,7 +105,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsRutas = new HashMap<String, TableInfo.Column>(7);
+        final HashMap<String, TableInfo.Column> _columnsRutas = new HashMap<String, TableInfo.Column>(9);
         _columnsRutas.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRutas.put("nombre", new TableInfo.Column("nombre", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRutas.put("fecha", new TableInfo.Column("fecha", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -113,6 +113,8 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsRutas.put("foliosEsperados", new TableInfo.Column("foliosEsperados", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRutas.put("foliosRecibidosPdf", new TableInfo.Column("foliosRecibidosPdf", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRutas.put("notas", new TableInfo.Column("notas", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsRutas.put("tablaCargada", new TableInfo.Column("tablaCargada", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsRutas.put("pdfsCargados", new TableInfo.Column("pdfsCargados", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysRutas = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesRutas = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoRutas = new TableInfo("rutas", _columnsRutas, _foreignKeysRutas, _indicesRutas);
@@ -197,7 +199,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "18d80bba1e268aa8d8fa572cd1977b39", "54997bde6d990ba847c434514da974b4");
+    }, "142b9ee8bd26347e30fd12663ea77499", "e400eac1b39920869d3a232f062be927");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

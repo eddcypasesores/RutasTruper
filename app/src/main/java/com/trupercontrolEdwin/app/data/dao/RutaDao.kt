@@ -16,6 +16,9 @@ interface RutaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(ruta: Ruta): Long
 
+    @Update
+    suspend fun update(ruta: Ruta)
+
     @Delete
     suspend fun delete(ruta: Ruta)
 }

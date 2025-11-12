@@ -15,59 +15,35 @@ object FolioParser {
     )
 
     fun parseSolicitud(texto: String): SolicitudData? {
-        val folio = Regex(
-            pattern = """(?im)Folio(?:\s*(?:solicitud|n[uú]mero|num\.?|#|no\.?))?\s*[:#-]?\s*([0-9]{4,7})"""
-        ).find(texto)?.groupValues?.getOrNull(1) ?: return null
+        val folioRegex = """(?im)Folio\s*[:#-]?\s*([0-9\s]{4,12})"""
+        val folioEncontrado = Regex(folioRegex).find(texto)?.groupValues?.getOrNull(1)
+        val folio = folioEncontrado?.filter { it.isDigit() }?.takeIf { it.length >= 4 } ?: return null
 
-        val razonSocial = extractFirstMatch(
+        val nombreNegocio = findFieldValue(
             texto,
             listOf(
-                """(?im)Raz[oó]n\s*(?:social)?(?:\s*del\s*cliente)?\s*[:\-]\s*([^\r\n]+)""".toRegex(),
-                """(?im)Nombre\s*(?:del\s*)?(?:establecimiento|negocio)\s*[:\-]\s*([^\r\n]+)""".toRegex(),
-                """(?im)Cliente\s*[:\-]\s*([^\r\n]+)""".toRegex()
-            )
-        ) ?: findFieldValue(
-            texto,
-            listOf(
+                "Nombre de la ferretería a rotular",
+                "Nombre de la ferreteria a rotular",
+                "Nombre de la ferretería",
+                "Nombre del negocio",
                 "Razón social del cliente",
                 "Nombre del cliente",
                 "Nombre del establecimiento"
             )
         )
 
-        val nombreFerreteria = findFieldValue(
-            texto,
-            listOf(
-                "Nombre de la ferretería a rotular",
-                "Nombre de la ferreteria a rotular",
-                "Nombre de la ferretería",
-                "Nombre del negocio"
-            )
-        )
-
-        val direccion = extractFirstMatch(
-            texto,
-            listOf(
-                """(?im)Domicilio\s*(?:de\s*la\s*ferreter[ií]a\s*a\s*rotular)?\s*[:\-]\s*([^\r\n]+)""".toRegex(),
-                """(?im)Direcci[oó]n\s*(?:de\s*la\s*ferreter[ií]a)?\s*[:\-]\s*([^\r\n]+)""".toRegex()
-            )
-        ) ?: findFieldValue(
+        val direccion = findFieldValue(
             texto,
             listOf(
                 "Domicilio de la ferretería a rotular",
+                "Domicilio de la ferreteria a rotular",
                 "Dirección del establecimiento",
                 "Dirección de la ferretería",
                 "Dirección"
             )
         )
 
-        val tipoFachada = extractFirstMatch(
-            texto,
-            listOf(
-                """(?im)Tipo(?:\s*de)?\s*fachada(?:\s*solicitada)?\s*[:\-]\s*([^\r\n]+)""".toRegex(),
-                """(?im)Tipo\s*de\s*r[oó]tulo\s*[:\-]\s*([^\r\n]+)""".toRegex()
-            )
-        ) ?: findFieldValue(
+        val tipoFachada = findFieldValue(
             texto,
             listOf(
                 "Material de fachada",
@@ -77,40 +53,27 @@ object FolioParser {
             )
         )
 
-        val metros = run {
-            val patrones = listOf(
-                """(?im)Total\s*de\s*metros\s*(?:cuadrados\s*)?a\s*rotular\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
-                """(?im)Metros\s*(?:cuadrados\s*)?(?:solicitados|a\s*rotular)\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
-                """(?im)M2\s*(?:solicitud|solicitados|a\s*rotular)\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
-                """(?im)Total\s*metros\s*(?:rotulados|solicitados)\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
-                """(?im)Total\s*m2\s*[:\-]?\s*([0-9]+(?:[.,][0-9]{1,2})?)""".toRegex(),
-                """(?im)Total\s+\$?\s*([0-9]+(?:[.,][0-9]{1,2})?)\s*(?:m2|m²)""".toRegex()
+        val metros = findFieldValue(
+            texto,
+            listOf(
+                "Total de metros cuadrados a rotular",
+                "Metros con valor sin promoción",
+                "Total metros rotulados",
+                "Total metros solicitud",
+                "Metros rotulados",
+                "Metros totales",
+                "Total m2"
             )
-            for (regex in patrones) {
-                val valor = regex.find(texto)?.groupValues?.getOrNull(1)?.normalizeDouble()
-                if (valor != null) return@run valor
-            }
-            findFieldValue(
-                texto,
-                listOf(
-                    "Total metros rotulados",
-                    "Total metros solicitud",
-                    "Metros rotulados",
-                    "Metros totales"
-                )
-            )?.normalizeDouble()
-        }
+        )?.normalizeDouble()
 
         return SolicitudData(
             folio = folio,
-            nombreNegocio = nombreFerreteria ?: razonSocial,
+            nombreNegocio = nombreNegocio,
             direccion = direccion,
             tipoFachada = tipoFachada,
             metrosReportados = metros
         )
     }
-
-    // ... (El resto del código se mantiene igual)
 
     data class CambioData(
         val folio: String,
@@ -193,21 +156,6 @@ object FolioParser {
         return sb.toString().trimEnd()
     }
 
-    private fun String.lineOrNull(): String? {
-        val linea = this.lines().firstOrNull()?.trim()
-        return linea?.takeIf { it.isNotEmpty() }
-    }
-
-    private fun extractFirstMatch(texto: String, patrones: List<Regex>): String? {
-        for (regex in patrones) {
-            val valor = regex.find(texto)?.groupValues?.getOrNull(1)?.lineOrNull()
-            if (!valor.isNullOrEmpty()) {
-                return valor
-            }
-        }
-        return null
-    }
-
     private fun findFieldValue(texto: String, etiquetas: List<String>): String? {
         if (etiquetas.isEmpty()) return null
         val normalizedEtiquetas = etiquetas.map { it.normalizeForComparison() }
@@ -242,7 +190,6 @@ object FolioParser {
                 if (siguiente.contains(':')) break
                 val valorSiguiente = siguiente.cleanFieldValue()
                 if (valorSiguiente.isNotEmpty()) return valorSiguiente
-                break
             }
         }
         return null

@@ -48,6 +48,9 @@ fun RutasScreen(navController: NavController) {
     var mostrarDialogoRuta by remember { mutableStateOf(false) }
     var rutaSeleccionada by remember { mutableStateOf<Ruta?>(null) }
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var rutaToDelete by remember { mutableStateOf<Ruta?>(null) }
+
     val tablaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -67,6 +70,7 @@ fun RutasScreen(navController: NavController) {
                     folios.forEach {
                         db.folioDao().insert(Folio(rutaId = ruta.id, folioTruper = it, estado = "En listado"))
                     }
+                    db.rutaDao().update(ruta.copy(tablaCargada = true))
                 }
 
                 snackbarHostState.showSnackbar("Tabla procesada: ${folios.size} folios creados")
@@ -118,6 +122,9 @@ fun RutasScreen(navController: NavController) {
                 }
 
                 if (processedCount > 0) {
+                    scope.launch(Dispatchers.IO) {
+                        db.rutaDao().update(ruta.copy(pdfsCargados = true))
+                    }
                     snackbarHostState.showSnackbar("$processedCount PDFs procesados y guardados.")
                 } else {
                     snackbarHostState.showSnackbar("No se encontraron datos de solicitud en los PDFs.")
@@ -165,7 +172,11 @@ fun RutasScreen(navController: NavController) {
                             rutaSeleccionada = ruta
                             pdfLauncher.launch("application/pdf")
                         },
-                        onAbrirFolios = { navController.navigate("folios/${ruta.id}") }
+                        onAbrirFolios = { navController.navigate("folios/${ruta.id}") },
+                        onDeleteRuta = {
+                            rutaToDelete = ruta
+                            showDeleteDialog = true
+                        }
                     )
                 }
             }
@@ -183,6 +194,29 @@ fun RutasScreen(navController: NavController) {
             }
         )
     }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Confirmar Eliminación") },
+            text = { Text("¿Deseas eliminar la ruta '${rutaToDelete?.nombre}'?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch {
+                        rutaToDelete?.let { db.rutaDao().delete(it) }
+                        showDeleteDialog = false
+                        rutaToDelete = null
+                    }
+                }) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    rutaToDelete = null
+                }) { Text("Cancelar") }
+            }
+        )
+    }
 }
 
 @Composable
@@ -190,7 +224,8 @@ private fun RutaCard(
     ruta: Ruta,
     onCargarTabla: () -> Unit,
     onCargarPdfs: () -> Unit,
-    onAbrirFolios: () -> Unit
+    onAbrirFolios: () -> Unit,
+    onDeleteRuta: () -> Unit
 ) {
     Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
         Column(Modifier.padding(16.dp)) {
@@ -198,9 +233,13 @@ private fun RutaCard(
             ruta.fecha?.let { Text("Fecha: $it") }
             Spacer(Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = onCargarTabla) { Text("Cargar Tabla") }
-                Button(onClick = onCargarPdfs) { Text("Cargar PDFs") }
-                Button(onClick = onAbrirFolios) { Text("Abrir Folios") } // Corregido a Button
+                if (ruta.tablaCargada && ruta.pdfsCargados) {
+                    Button(onClick = onAbrirFolios) { Text("Ver Ruta") }
+                    OutlinedButton(onClick = onDeleteRuta) { Text("Eliminar Ruta") }
+                } else {
+                    Button(onClick = onCargarTabla, enabled = !ruta.tablaCargada) { Text("Cargar Tabla") }
+                    Button(onClick = onCargarPdfs, enabled = !ruta.pdfsCargados) { Text("Cargar PDFs") }
+                }
             }
         }
     }
@@ -265,7 +304,6 @@ private fun DialogNuevaRuta(
 }
 
 private fun getFileName(context: Context, uri: Uri): String? {
-    // Try to get the display name from the content resolver first
     if (uri.scheme == "content") {
         context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
             if (cursor.moveToFirst()) {
@@ -276,13 +314,12 @@ private fun getFileName(context: Context, uri: Uri): String? {
             }
         }
     }
-    // As a fallback, get the last path segment
     return uri.path?.let { path ->
         val cut = path.lastIndexOf('/')
         if (cut != -1) {
             path.substring(cut + 1)
         } else {
-            path // The path itself might be the filename
+            path
         }
     }
 }

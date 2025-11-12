@@ -3,7 +3,11 @@ local
 color black
 color fondo_oscuro
 color white
-mipmap logo
+drawable ic_launcher_background
+drawable logo
+mipmap ic_launcher
+mipmap ic_launcher_foreground
+mipmap ic_launcher_round
 string agregar
 string app_name
 string cambiar_carpeta
