@@ -1,8 +1,8 @@
 package com.trupercontrolEdwin.app.utils
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Test
 
 class FolioParserTest {
 
@@ -18,10 +18,11 @@ class FolioParserTest {
         val resultado = FolioParser.parseSolicitud(texto)
 
         assertNotNull(resultado)
-        assertEquals("53949", resultado.folio)
-        assertEquals("Tlapalería Magaly", resultado.nombreNegocio)
-        assertEquals("Av. Morelos No 9", resultado.direccion)
-        assertEquals(49.0, resultado.metrosReportados, 0.0001)
+        val solicitud = resultado!!
+        assertEquals("53949", solicitud.folio)
+        assertEquals("Tlapalería Magaly", solicitud.nombreNegocio)
+        assertEquals("Av. Morelos No 9", solicitud.direccion)
+        assertEquals(49.0, solicitud.metrosReportados!!, 0.0001)
     }
 
     @Test
@@ -39,9 +40,10 @@ class FolioParserTest {
         val resultado = FolioParser.parseSolicitud(texto)
 
         assertNotNull(resultado)
-        assertEquals("12345", resultado.folio)
-        assertEquals("Ferretería Ejemplo", resultado.nombreNegocio)
-        assertEquals("Calle 123 Colonia Centro", resultado.direccion)
-        assertEquals(75.5, resultado.metrosReportados, 0.0001)
+        val solicitud = resultado!!
+        assertEquals("12345", solicitud.folio)
+        assertEquals("Ferretería Ejemplo", solicitud.nombreNegocio)
+        assertEquals("Calle 123 Colonia Centro", solicitud.direccion)
+        assertEquals(75.5, solicitud.metrosReportados!!, 0.0001)
     }
 }

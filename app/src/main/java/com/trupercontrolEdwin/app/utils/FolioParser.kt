@@ -166,11 +166,13 @@ object FolioParser {
             if (lineaOriginal.isEmpty()) continue
             val lineaNormalizada = lineaOriginal.normalizeForComparison()
             val lineaSinEspacios = lineaNormalizada.removeSpaces()
-            val coincide = normalizedEtiquetas.indexOfFirst { etiqueta ->
+            val coincide = normalizedEtiquetas.indices.any { etiquetaIndex ->
+                val etiqueta = normalizedEtiquetas[etiquetaIndex]
+                val etiquetaSinEspacios = normalizedEtiquetasNoSpaces[etiquetaIndex]
                 lineaNormalizada.contains(etiqueta) ||
-                        lineaSinEspacios.contains(normalizedEtiquetasNoSpaces[it])
+                        lineaSinEspacios.contains(etiquetaSinEspacios)
             }
-            if (coincide == -1) continue
+            if (!coincide) continue
 
             val valorDirecto = lineaOriginal.substringAfter(':', "").takeIf { it.isNotEmpty() }
                 ?.trim()
