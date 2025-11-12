@@ -28,8 +28,7 @@
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:debuggable="true"
         android:extractNativeLibs="false"
-        android:label="Control de Rotulación Truper"
-        android:testOnly="true" >
+        android:label="Control de Rotulación Truper" >
         <activity
             android:name="com.trupercontrolEdwin.app.MainActivity"
             android:exported="true" >

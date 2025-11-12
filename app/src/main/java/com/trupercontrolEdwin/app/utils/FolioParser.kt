@@ -159,15 +159,20 @@ object FolioParser {
     private fun findFieldValue(texto: String, etiquetas: List<String>): String? {
         if (etiquetas.isEmpty()) return null
         val normalizedEtiquetas = etiquetas.map { it.normalizeForComparison() }
+        val normalizedEtiquetasNoSpaces = normalizedEtiquetas.map { it.removeSpaces() }
         val lineas = texto.lines()
         for (index in lineas.indices) {
             val lineaOriginal = lineas[index].trim()
             if (lineaOriginal.isEmpty()) continue
             val lineaNormalizada = lineaOriginal.normalizeForComparison()
-            val coincide = normalizedEtiquetas.indexOfFirst { etiqueta ->
-                lineaNormalizada.contains(etiqueta)
+            val lineaSinEspacios = lineaNormalizada.removeSpaces()
+            val coincide = normalizedEtiquetas.indices.any { etiquetaIndex ->
+                val etiqueta = normalizedEtiquetas[etiquetaIndex]
+                val etiquetaSinEspacios = normalizedEtiquetasNoSpaces[etiquetaIndex]
+                lineaNormalizada.contains(etiqueta) ||
+                        lineaSinEspacios.contains(etiquetaSinEspacios)
             }
-            if (coincide == -1) continue
+            if (!coincide) continue
 
             val valorDirecto = lineaOriginal.substringAfter(':', "").takeIf { it.isNotEmpty() }
                 ?.trim()
@@ -183,8 +188,12 @@ object FolioParser {
                 val siguiente = lineas.getOrNull(index + offset)?.trim().orEmpty()
                 if (siguiente.isEmpty()) continue
                 val siguienteNormalizado = siguiente.normalizeForComparison()
-                val esOtraEtiqueta = normalizedEtiquetas.any { etiqueta ->
-                    siguienteNormalizado.startsWith(etiqueta)
+                val siguienteSinEspacios = siguienteNormalizado.removeSpaces()
+                val esOtraEtiqueta = normalizedEtiquetas.indices.any { etiquetaIndex ->
+                    val etiqueta = normalizedEtiquetas[etiquetaIndex]
+                    val etiquetaSinEspacios = normalizedEtiquetasNoSpaces[etiquetaIndex]
+                    siguienteNormalizado.startsWith(etiqueta) ||
+                            siguienteSinEspacios.startsWith(etiquetaSinEspacios)
                 }
                 if (esOtraEtiqueta) break
                 if (siguiente.contains(':')) break
@@ -221,6 +230,8 @@ object FolioParser {
     }
 
     private fun formatMetros(valor: Double): String = "${"%.2f".format(valor)} m²"
+
+    private fun String.removeSpaces(): String = replace("\\s+".toRegex(), "")
 
     private val ACENTO_REGEX = "\\p{Mn}+".toRegex()
 }
