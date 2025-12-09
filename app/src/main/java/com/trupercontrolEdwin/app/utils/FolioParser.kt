@@ -3,6 +3,7 @@ package com.trupercontrolEdwin.app.utils
 import com.trupercontrolEdwin.app.data.entities.Folio
 import com.trupercontrolEdwin.app.data.entities.Ruta
 import java.text.Normalizer
+import kotlin.math.abs
 
 object FolioParser {
 
@@ -11,68 +12,115 @@ object FolioParser {
         val nombreNegocio: String? = null,
         val direccion: String? = null,
         val tipoFachada: String? = null,
-        val metrosReportados: Double? = null
+        val metrosReportados: Double? = null,
+        val extraInfo: String? = null 
     )
 
     fun parseSolicitud(texto: String): SolicitudData? {
-        val folioRegex = """(?im)Folio\s*[:#-]?\s*([0-9\s]{4,12})"""
-        val folioEncontrado = Regex(folioRegex).find(texto)?.groupValues?.getOrNull(1)
-        val folio = folioEncontrado?.filter { it.isDigit() }?.takeIf { it.length >= 4 } ?: return null
+        val folioRegex = Regex("""(?im)Folio\s*(?:No\.?|[:#-·])?\s*([0-9\s]{4,12})""")
+        val folioMatch = folioRegex.find(texto)
+        val rawFolio = folioMatch?.groupValues?.get(1)
+        
+        val folio = rawFolio?.filter { it.isDigit() }?.takeIf { it.length >= 4 } ?: return null
 
-        val nombreNegocio = findFieldValue(
-            texto,
-            listOf(
-                "Nombre de la ferretería a rotular",
-                "Nombre de la ferreteria a rotular",
-                "Nombre de la ferretería",
-                "Nombre del negocio",
-                "Razón social del cliente",
-                "Nombre del cliente",
-                "Nombre del establecimiento"
-            )
+        val textoNormalizado = texto.normalizeForComparison()
+
+        val nombreNegocio = findNextTextValue(
+            texto, 
+            textoNormalizado,
+            listOf("Nombre de la ferretería a rotular", "Nombre del negocio", "Razón social del cliente"),
+            maxLength = 100
         )
 
-        val direccion = findFieldValue(
+        val poblacionCiudad = findNextTextValue(
             texto,
-            listOf(
-                "Domicilio de la ferretería a rotular",
-                "Domicilio de la ferreteria a rotular",
-                "Dirección del establecimiento",
-                "Dirección de la ferretería",
-                "Dirección"
-            )
+            textoNormalizado,
+            listOf("Población", "Ciudad"),
+            maxLength = 100
         )
 
-        val tipoFachada = findFieldValue(
+        val estado = findNextTextValue(
             texto,
-            listOf(
-                "Material de fachada",
-                "Material de fachada actual",
-                "Tipo de fachada",
-                "Tipo de rotulación"
-            )
+            textoNormalizado,
+            listOf("Estado"),
+            maxLength = 50
         )
 
-        val metros = findFieldValue(
+        val direccion = listOfNotNull(poblacionCiudad, estado)
+            .filter { it.isNotBlank() }
+            .joinToString(", ")
+            .takeIf { it.isNotEmpty() }
+
+        val metrosRegex = Regex("""(?i)(Total\s+de\s+metros\s+cuadrados\s+a\s+rotular|Metros\s+con\s+valor\s+con\s+promocion)\s*[:#-\.\s]*([\d\s,]+\.\d{2})\s*(m2|m²)?""")
+        val metrosMatch = metrosRegex.find(texto)
+        val metrosReportados = metrosMatch?.groupValues?.get(2)?.normalizeDouble()
+
+        val tipoFachada = findNextTextValue(
             texto,
-            listOf(
-                "Total de metros cuadrados a rotular",
-                "Metros con valor sin promoción",
-                "Total metros rotulados",
-                "Total metros solicitud",
-                "Metros rotulados",
-                "Metros totales",
-                "Total m2"
-            )
-        )?.normalizeDouble()
+            textoNormalizado,
+            listOf("Tipo de rotulación", "Tipo de fachada"),
+            maxLength = 50
+        )
 
         return SolicitudData(
             folio = folio,
             nombreNegocio = nombreNegocio,
             direccion = direccion,
             tipoFachada = tipoFachada,
-            metrosReportados = metros
+            metrosReportados = metrosReportados
         )
+    }
+
+    private fun findNextTextValue(
+        textoOriginal: String,
+        textoNormalizado: String,
+        etiquetas: List<String>,
+        maxLength: Int
+    ): String? {
+        val etiquetasNormalizadas = etiquetas.map { it.normalizeForComparison() }
+        val matchedLabelNorm = etiquetasNormalizadas.firstOrNull { textoNormalizado.contains(it) } ?: return null
+        
+        val etiquetaOriginal = etiquetas.first { it.normalizeForComparison() == matchedLabelNorm }
+        
+        val words = etiquetaOriginal.split("\\s+".toRegex())
+        val regexPattern = words.joinToString(separator = """\s+""", prefix = """(?i)""") { Regex.escape(it) }
+        
+        val matchResult = Regex(regexPattern).find(textoOriginal) ?: return null
+        
+        val startIndex = matchResult.range.last + 1
+        if (startIndex >= textoOriginal.length) return null
+        
+        var rawValue = textoOriginal.substring(startIndex)
+        
+        rawValue = rawValue.replaceFirst(Regex("""^[\s:.\-·]+"""), "")
+        
+        if (rawValue.isEmpty()) return null
+
+        val limit = minOf(rawValue.length, maxLength)
+        var candidate = rawValue.substring(0, limit)
+
+        val knownLabels = listOf(
+            "Folio", "Nombre de la ferretería", "Nombre del negocio", "Razón social", 
+            "Domicilio", "Población", "Ciudad", "Estado", "Teléfono", "Contacto", 
+            "Correo", "Total de metros", "Metros con valor", "Tipo de rotulación", 
+            "Fecha", "Zona", "Entre calles", "Colonia", "CP", "C.P."
+        )
+        
+        var endIndex = candidate.length
+        
+        for (label in knownLabels) {
+            val index = candidate.indexOf(label, ignoreCase = true)
+            if (index != -1 && index < endIndex) {
+                endIndex = index
+            }
+        }
+        
+        val newlineIndex = candidate.indexOf('\n')
+        if (newlineIndex != -1 && newlineIndex < endIndex) {
+            endIndex = newlineIndex
+        }
+
+        return candidate.substring(0, endIndex).cleanFieldValue().takeIf { it.isNotEmpty() }
     }
 
     data class CambioData(
@@ -83,141 +131,59 @@ object FolioParser {
         val comentarios: String = ""
     )
 
-    data class FacturaData(
-        val folioFactura: String,
-        val total: Double
-    )
-
-    fun parsearDocumentoFactura(texto: String): FacturaData? {
-        val folio = Regex("(Folio Fiscal|UUID).+?([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})", RegexOption.IGNORE_CASE)
-            .find(texto)?.groupValues?.get(2)?.uppercase()
-
-        val total = Regex("""Total\s+\$([\d,]+\.\d{2})""")
-            .find(texto)?.groupValues?.get(1)?.replace(",", "")?.toDoubleOrNull()
-
-        if (folio == null || total == null) return null
-        return FacturaData(folio, total)
-    }
-
-    fun parseCambio(texto: String): CambioData? {
-        val folio = Regex("""Folio\s*[:#-]?\s*(\d{4,6})""", RegexOption.IGNORE_CASE)
-            .find(texto)?.groupValues?.getOrNull(1) ?: return null
-
-        val solicitud = Regex("""(trae|solicitud).*?(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)""", RegexOption.IGNORE_CASE)
-            .find(texto)?.groupValues?.getOrNull(2)?.normalizeDouble()
-
-        val incremento = Regex("""(Incrementa|Disminuye).*?(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)""", RegexOption.IGNORE_CASE)
-            .find(texto)?.groupValues?.getOrNull(2)?.normalizeDouble()
-
-        val total = Regex("""Total.*?(\d{1,4}(?:[.,]\d{1,2})?)\s*(m2|m²)""", RegexOption.IGNORE_CASE)
-            .find(texto)?.groupValues?.getOrNull(1)?.normalizeDouble()
-
-        val comentarios = buildString {
-            if (texto.contains("mayorista", ignoreCase = true)) {
-                append("Cliente mayorista. ")
-            }
-            val autorizo = Regex("""autoriz[oó]""" , RegexOption.IGNORE_CASE).find(texto)
-            if (autorizo != null) {
-                append("Autorizado por cliente. ")
-            }
-            val lineasExtras = texto.lines()
-                .filter { it.contains("nota", ignoreCase = true) || it.contains("coment", ignoreCase = true) }
-                .joinToString(" ")
-            if (lineasExtras.isNotBlank()) append(lineasExtras.trim())
-        }.trim()
-
-        return CambioData(
-            folio = folio,
-            metrosSolicitud = solicitud,
-            metrosDiferencia = incremento,
-            metrosFinales = total,
-            comentarios = comentarios
-        )
-    }
-
     fun generarMensajeValidacion(folio: Folio, ruta: Ruta?): String {
         val sb = StringBuilder()
-        sb.appendLine("Validación")
+        sb.appendLine("Validacion")
         sb.append("Folio: ").appendLine(folio.folioTruper)
-        ruta?.nombre?.let { sb.appendLine(it) }
         folio.nombreEstablecimiento?.let { sb.appendLine(it) }
-        folio.m2Reportados?.let {
-            sb.append("Solicitud: ").append(formatMetros(it)).appendLine()
+        
+        val m2Solicitud = folio.m2Reportados
+        val m2Total = folio.m2Final ?: m2Solicitud
+
+        if (m2Solicitud != null) {
+            sb.append("Solicitud: ").append(formatMetros(m2Solicitud)).appendLine()
         }
-        folio.m2Final?.let {
-            sb.append("Total de metros: ").append(formatMetros(it)).appendLine()
+        
+        if (m2Total != null) {
+             sb.append("Total: ").append(formatMetros(m2Total)).appendLine()
         }
-        folio.figuras?.takeIf { it > 0 }?.let {
-            sb.append("Figuras/cajones: ").append(it).appendLine()
-        }
-        folio.tipoFachada?.let {
-            sb.append("Tipo de fachada: ").appendLine(it)
-        }
+
         return sb.toString().trimEnd()
     }
 
-    private fun findFieldValue(texto: String, etiquetas: List<String>): String? {
-        if (etiquetas.isEmpty()) return null
-        val normalizedEtiquetas = etiquetas.map { it.normalizeForComparison() }
-        val normalizedEtiquetasNoSpaces = normalizedEtiquetas.map { it.removeSpaces() }
-        val lineas = texto.lines()
-        for (index in lineas.indices) {
-            val lineaOriginal = lineas[index].trim()
-            if (lineaOriginal.isEmpty()) continue
-            val lineaNormalizada = lineaOriginal.normalizeForComparison()
-            val lineaSinEspacios = lineaNormalizada.removeSpaces()
-            val coincide = normalizedEtiquetas.indices.any { etiquetaIndex ->
-                val etiqueta = normalizedEtiquetas[etiquetaIndex]
-                val etiquetaSinEspacios = normalizedEtiquetasNoSpaces[etiquetaIndex]
-                lineaNormalizada.contains(etiqueta) ||
-                        lineaSinEspacios.contains(etiquetaSinEspacios)
+    fun generarTextoReporteCambio(folio: Folio, m2FinalesNuevo: Double): String {
+        val solicitud = folio.m2Reportados ?: 0.0
+        val diferencia = m2FinalesNuevo - solicitud
+        
+        // Buscamos si es Mayorista (MY) o Autoservicio (MS) en observaciones o si existe un campo para ello
+        val esMayorista = folio.observaciones?.contains("MY", ignoreCase = true) == true || 
+                          folio.observaciones?.contains("Mayorista", ignoreCase = true) == true
+        val esAutoservicio = folio.observaciones?.contains("MS", ignoreCase = true) == true ||
+                          folio.observaciones?.contains("Autoservicio", ignoreCase = true) == true
+
+        return buildString {
+            appendLine("Modificación")
+            append("Folio:").appendLine(folio.folioTruper)
+            folio.nombreEstablecimiento?.let { appendLine(it) }
+            append("Solicitud: ").append(formatMetros(solicitud)).appendLine()
+            
+            if (abs(diferencia) > 0.009) {
+                val accion = if (diferencia > 0) "Aumenta" else "Disminuye"
+                append("$accion: ").append(formatMetros(abs(diferencia))).appendLine()
             }
-            if (!coincide) continue
-
-            val valorDirecto = lineaOriginal.substringAfter(':', "").takeIf { it.isNotEmpty() }
-                ?.trim()
-                ?.takeIf { it.isNotEmpty() }
-                ?: lineaOriginal.substringAfter('-', "")
-                    .trim()
-                    .takeIf { it.isNotEmpty() && it.length < lineaOriginal.length }
-
-            val valorLimpio = valorDirecto?.cleanFieldValue()
-            if (!valorLimpio.isNullOrEmpty()) return valorLimpio
-
-            for (offset in 1..2) {
-                val siguiente = lineas.getOrNull(index + offset)?.trim().orEmpty()
-                if (siguiente.isEmpty()) continue
-                val siguienteNormalizado = siguiente.normalizeForComparison()
-                val siguienteSinEspacios = siguienteNormalizado.removeSpaces()
-                val esOtraEtiqueta = normalizedEtiquetas.indices.any { etiquetaIndex ->
-                    val etiqueta = normalizedEtiquetas[etiquetaIndex]
-                    val etiquetaSinEspacios = normalizedEtiquetasNoSpaces[etiquetaIndex]
-                    siguienteNormalizado.startsWith(etiqueta) ||
-                            siguienteSinEspacios.startsWith(etiquetaSinEspacios)
-                }
-                if (esOtraEtiqueta) break
-                if (siguiente.contains(':')) break
-                val valorSiguiente = siguiente.cleanFieldValue()
-                if (valorSiguiente.isNotEmpty()) return valorSiguiente
+            
+            append("Total: ").append(formatMetros(m2FinalesNuevo)).append(" M2").appendLine()
+            
+            if (esMayorista) {
+                appendLine("la solicitud es \"my\"")
+            } else if (esAutoservicio) {
+                appendLine("la solicitud es \"ms\"")
             }
-        }
-        return null
+        }.trimEnd()
     }
 
     private fun String.normalizeDouble(): Double? {
-        val compact = trim().replace("\\s+".toRegex(), "")
-        if (compact.isEmpty()) return null
-
-        val decimalIndex = compact.indexOfLast { it == ',' || it == '.' }
-        val builder = StringBuilder()
-        compact.forEachIndexed { index, c ->
-            when {
-                c.isDigit() -> builder.append(c)
-                index == decimalIndex && c in charArrayOf(',', '.') -> builder.append('.')
-            }
-        }
-
-        return builder.toString().toDoubleOrNull()
+        return this.replace("\\s+".toRegex(), "").replace(",", "").toDoubleOrNull()
     }
 
     private fun String.cleanFieldValue(): String =
@@ -230,8 +196,6 @@ object FolioParser {
     }
 
     private fun formatMetros(valor: Double): String = "${"%.2f".format(valor)} m²"
-
-    private fun String.removeSpaces(): String = replace("\\s+".toRegex(), "")
 
     private val ACENTO_REGEX = "\\p{Mn}+".toRegex()
 }

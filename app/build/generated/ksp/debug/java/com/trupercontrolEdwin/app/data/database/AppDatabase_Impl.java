@@ -24,6 +24,7 @@ import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,15 +46,18 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(4) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(8) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `rutas` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `fecha` TEXT, `fotoListadoUri` TEXT, `foliosEsperados` TEXT, `foliosRecibidosPdf` TEXT, `notas` TEXT, `tablaCargada` INTEGER NOT NULL, `pdfsCargados` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `folios` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `rutaId` INTEGER NOT NULL, `folioTruper` TEXT NOT NULL, `nombreEstablecimiento` TEXT, `direccion` TEXT, `tipoFachada` TEXT, `m2Reportados` REAL, `m2Final` REAL, `figuras` INTEGER, `tarifaTipo` TEXT, `estado` TEXT NOT NULL, `observaciones` TEXT, `solicitudPdfUri` TEXT, `facturaPdfUri` TEXT, `facturaXmlUri` TEXT, `validacionMensaje` TEXT, `validacionFotosUris` TEXT, `cambioTexto` TEXT, `facturacionExcelUri` TEXT, `acuseCancelacionUri` TEXT, `documentoPagoUri` TEXT, `listadoCoincide` INTEGER)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `facturas` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `folioId` INTEGER NOT NULL, `folioFactura` TEXT NOT NULL, `folioFacturaNum` INTEGER, `fechaEmision` TEXT, `subtotal` REAL NOT NULL, `iva` REAL NOT NULL, `total` REAL NOT NULL, `estatus` TEXT NOT NULL, `motivoCancelacion` TEXT, `folioReemplaza` TEXT, `pdfUri` TEXT, `xmlUri` TEXT, `observaciones` TEXT)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `pagos` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `facturaId` INTEGER NOT NULL, `fechaPago` TEXT, `monto` REAL NOT NULL, `documentoPagoUri` TEXT, `referenciaBanco` TEXT, `tipo` TEXT)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `folios` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `rutaId` INTEGER NOT NULL, `folioTruper` TEXT NOT NULL, `nombreEstablecimiento` TEXT, `direccion` TEXT, `tipoFachada` TEXT, `m2Reportados` REAL, `m2Final` REAL, `figuras` INTEGER, `tarifaTipo` TEXT, `estado` TEXT NOT NULL, `observaciones` TEXT, `cambioTexto` TEXT, `tipoSolicitud` TEXT, FOREIGN KEY(`rutaId`) REFERENCES `rutas`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_folios_rutaId` ON `folios` (`rutaId`)");
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_folios_folioTruper` ON `folios` (`folioTruper`)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `facturas` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `folioId` INTEGER NOT NULL, `folioFactura` TEXT NOT NULL, `subtotal` REAL NOT NULL, `iva` REAL NOT NULL, `total` REAL NOT NULL, `estado` TEXT NOT NULL, `motivoCancelacion` TEXT, `fechaCreacion` INTEGER NOT NULL, FOREIGN KEY(`folioId`) REFERENCES `folios`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_facturas_folioId` ON `facturas` (`folioId`)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `pagos` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `facturaId` INTEGER NOT NULL, `monto` REAL NOT NULL, `fecha` INTEGER NOT NULL, FOREIGN KEY(`facturaId`) REFERENCES `facturas`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '142b9ee8bd26347e30fd12663ea77499')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '694e45d12ae99d4c27281a1eaf6507a5')");
       }
 
       @Override
@@ -83,6 +87,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       @Override
       public void onOpen(@NonNull final SupportSQLiteDatabase db) {
         mDatabase = db;
+        db.execSQL("PRAGMA foreign_keys = ON");
         internalInitInvalidationTracker(db);
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
@@ -124,7 +129,7 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoRutas + "\n"
                   + " Found:\n" + _existingRutas);
         }
-        final HashMap<String, TableInfo.Column> _columnsFolios = new HashMap<String, TableInfo.Column>(22);
+        final HashMap<String, TableInfo.Column> _columnsFolios = new HashMap<String, TableInfo.Column>(14);
         _columnsFolios.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFolios.put("rutaId", new TableInfo.Column("rutaId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFolios.put("folioTruper", new TableInfo.Column("folioTruper", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -137,18 +142,13 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsFolios.put("tarifaTipo", new TableInfo.Column("tarifaTipo", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFolios.put("estado", new TableInfo.Column("estado", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFolios.put("observaciones", new TableInfo.Column("observaciones", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFolios.put("solicitudPdfUri", new TableInfo.Column("solicitudPdfUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFolios.put("facturaPdfUri", new TableInfo.Column("facturaPdfUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFolios.put("facturaXmlUri", new TableInfo.Column("facturaXmlUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFolios.put("validacionMensaje", new TableInfo.Column("validacionMensaje", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFolios.put("validacionFotosUris", new TableInfo.Column("validacionFotosUris", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFolios.put("cambioTexto", new TableInfo.Column("cambioTexto", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFolios.put("facturacionExcelUri", new TableInfo.Column("facturacionExcelUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFolios.put("acuseCancelacionUri", new TableInfo.Column("acuseCancelacionUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFolios.put("documentoPagoUri", new TableInfo.Column("documentoPagoUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFolios.put("listadoCoincide", new TableInfo.Column("listadoCoincide", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysFolios = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesFolios = new HashSet<TableInfo.Index>(0);
+        _columnsFolios.put("tipoSolicitud", new TableInfo.Column("tipoSolicitud", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysFolios = new HashSet<TableInfo.ForeignKey>(1);
+        _foreignKeysFolios.add(new TableInfo.ForeignKey("rutas", "CASCADE", "NO ACTION", Arrays.asList("rutaId"), Arrays.asList("id")));
+        final HashSet<TableInfo.Index> _indicesFolios = new HashSet<TableInfo.Index>(2);
+        _indicesFolios.add(new TableInfo.Index("index_folios_rutaId", false, Arrays.asList("rutaId"), Arrays.asList("ASC")));
+        _indicesFolios.add(new TableInfo.Index("index_folios_folioTruper", false, Arrays.asList("folioTruper"), Arrays.asList("ASC")));
         final TableInfo _infoFolios = new TableInfo("folios", _columnsFolios, _foreignKeysFolios, _indicesFolios);
         final TableInfo _existingFolios = TableInfo.read(db, "folios");
         if (!_infoFolios.equals(_existingFolios)) {
@@ -156,23 +156,20 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoFolios + "\n"
                   + " Found:\n" + _existingFolios);
         }
-        final HashMap<String, TableInfo.Column> _columnsFacturas = new HashMap<String, TableInfo.Column>(14);
+        final HashMap<String, TableInfo.Column> _columnsFacturas = new HashMap<String, TableInfo.Column>(9);
         _columnsFacturas.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFacturas.put("folioId", new TableInfo.Column("folioId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFacturas.put("folioFactura", new TableInfo.Column("folioFactura", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFacturas.put("folioFacturaNum", new TableInfo.Column("folioFacturaNum", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFacturas.put("fechaEmision", new TableInfo.Column("fechaEmision", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFacturas.put("subtotal", new TableInfo.Column("subtotal", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFacturas.put("iva", new TableInfo.Column("iva", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFacturas.put("total", new TableInfo.Column("total", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFacturas.put("estatus", new TableInfo.Column("estatus", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsFacturas.put("estado", new TableInfo.Column("estado", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsFacturas.put("motivoCancelacion", new TableInfo.Column("motivoCancelacion", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFacturas.put("folioReemplaza", new TableInfo.Column("folioReemplaza", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFacturas.put("pdfUri", new TableInfo.Column("pdfUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFacturas.put("xmlUri", new TableInfo.Column("xmlUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsFacturas.put("observaciones", new TableInfo.Column("observaciones", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysFacturas = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesFacturas = new HashSet<TableInfo.Index>(0);
+        _columnsFacturas.put("fechaCreacion", new TableInfo.Column("fechaCreacion", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysFacturas = new HashSet<TableInfo.ForeignKey>(1);
+        _foreignKeysFacturas.add(new TableInfo.ForeignKey("folios", "CASCADE", "NO ACTION", Arrays.asList("folioId"), Arrays.asList("id")));
+        final HashSet<TableInfo.Index> _indicesFacturas = new HashSet<TableInfo.Index>(1);
+        _indicesFacturas.add(new TableInfo.Index("index_facturas_folioId", false, Arrays.asList("folioId"), Arrays.asList("ASC")));
         final TableInfo _infoFacturas = new TableInfo("facturas", _columnsFacturas, _foreignKeysFacturas, _indicesFacturas);
         final TableInfo _existingFacturas = TableInfo.read(db, "facturas");
         if (!_infoFacturas.equals(_existingFacturas)) {
@@ -180,15 +177,13 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoFacturas + "\n"
                   + " Found:\n" + _existingFacturas);
         }
-        final HashMap<String, TableInfo.Column> _columnsPagos = new HashMap<String, TableInfo.Column>(7);
+        final HashMap<String, TableInfo.Column> _columnsPagos = new HashMap<String, TableInfo.Column>(4);
         _columnsPagos.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsPagos.put("facturaId", new TableInfo.Column("facturaId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsPagos.put("fechaPago", new TableInfo.Column("fechaPago", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsPagos.put("monto", new TableInfo.Column("monto", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsPagos.put("documentoPagoUri", new TableInfo.Column("documentoPagoUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsPagos.put("referenciaBanco", new TableInfo.Column("referenciaBanco", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsPagos.put("tipo", new TableInfo.Column("tipo", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        final HashSet<TableInfo.ForeignKey> _foreignKeysPagos = new HashSet<TableInfo.ForeignKey>(0);
+        _columnsPagos.put("fecha", new TableInfo.Column("fecha", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysPagos = new HashSet<TableInfo.ForeignKey>(1);
+        _foreignKeysPagos.add(new TableInfo.ForeignKey("facturas", "CASCADE", "NO ACTION", Arrays.asList("facturaId"), Arrays.asList("id")));
         final HashSet<TableInfo.Index> _indicesPagos = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoPagos = new TableInfo("pagos", _columnsPagos, _foreignKeysPagos, _indicesPagos);
         final TableInfo _existingPagos = TableInfo.read(db, "pagos");
@@ -199,7 +194,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "142b9ee8bd26347e30fd12663ea77499", "e400eac1b39920869d3a232f062be927");
+    }, "694e45d12ae99d4c27281a1eaf6507a5", "661a728a007d9424c1709a88703d7a09");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -217,8 +212,15 @@ public final class AppDatabase_Impl extends AppDatabase {
   public void clearAllTables() {
     super.assertNotMainThread();
     final SupportSQLiteDatabase _db = super.getOpenHelper().getWritableDatabase();
+    final boolean _supportsDeferForeignKeys = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP;
     try {
+      if (!_supportsDeferForeignKeys) {
+        _db.execSQL("PRAGMA foreign_keys = FALSE");
+      }
       super.beginTransaction();
+      if (_supportsDeferForeignKeys) {
+        _db.execSQL("PRAGMA defer_foreign_keys = TRUE");
+      }
       _db.execSQL("DELETE FROM `rutas`");
       _db.execSQL("DELETE FROM `folios`");
       _db.execSQL("DELETE FROM `facturas`");
@@ -226,6 +228,9 @@ public final class AppDatabase_Impl extends AppDatabase {
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
+      if (!_supportsDeferForeignKeys) {
+        _db.execSQL("PRAGMA foreign_keys = TRUE");
+      }
       _db.query("PRAGMA wal_checkpoint(FULL)").close();
       if (!_db.inTransaction()) {
         _db.execSQL("VACUUM");

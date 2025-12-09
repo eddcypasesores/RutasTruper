@@ -27,19 +27,30 @@ object OcrProcessor {
     }
 
     /**
-     * Intenta detectar patrones de folios en un texto OCRizado.
-     * Combina dos estrategias: busca el patrón "Folio: numero" y también números aislados.
+     * Detecta folios en un texto OCRizado.
+     * Mejorado para capturar listas verticales de números.
      */
     fun extraerFolios(texto: String): List<String> {
-        val regexConPrefijo = Regex("""(Folio|Foli|Folio:)\s*[:#-]?\s*(\d{5,6})""", RegexOption.IGNORE_CASE)
-        val foliosConPrefijo = regexConPrefijo.findAll(texto).map { it.groupValues[2] }.toList()
+        val encontrados = mutableSetOf<String>()
 
-        if (foliosConPrefijo.isNotEmpty()) {
-            return foliosConPrefijo
+        // 1. Estrategia explícita: "Folio: 12345"
+        // Útil si aparecen con etiqueta
+        val regexConPrefijo = Regex("""(?:Folio|Foli|Folio:)[\s.:#-]*(\d{5,6})""", RegexOption.IGNORE_CASE)
+        regexConPrefijo.findAll(texto).forEach { 
+            encontrados.add(it.groupValues[1]) 
         }
 
-        val regexNumerosAislados = Regex("""\b(\d{5,6})\b""", RegexOption.IGNORE_CASE)
-        return regexNumerosAislados.findAll(texto).map { it.groupValues[1] }.toList()
+        // 2. Estrategia de lista: Números de 5 o 6 dígitos aislados
+        // Se usa \b para asegurar que son números completos, pero se permite que estén rodeados de saltos de línea
+        // En OCR de listas, a veces los números vienen pegados o con ruido, intentamos limpiar primero
+        
+        // Buscamos cualquier secuencia de 5 o 6 dígitos
+        val regexNumeros = Regex("""(?<!\d)(\d{5,6})(?!\d)""")
+        regexNumeros.findAll(texto).forEach { 
+            encontrados.add(it.groupValues[1]) 
+        }
+
+        return encontrados.toList().sorted()
     }
 
     /**

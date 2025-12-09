@@ -30,6 +30,6 @@ fun NavGraph() {
         }
         composable("pagos") { PagosScreen(navController) }
         composable("reportes") { ReportesScreen(navController) }
-        composable("config") { ConfiguracionScreen(navController) }
+        composable("configuracion") { ConfiguracionScreen(navController) }
     }
 }

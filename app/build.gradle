@@ -36,6 +36,14 @@ android {
     packagingOptions {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
         resources.excludes += "META-INF/DEPENDENCIES"
+        resources.excludes += "META-INF/LICENSE"
+        resources.excludes += "META-INF/LICENSE.txt"
+        resources.excludes += "META-INF/license.txt"
+        resources.excludes += "META-INF/NOTICE"
+        resources.excludes += "META-INF/NOTICE.txt"
+        resources.excludes += "META-INF/notice.txt"
+        resources.excludes += "META-INF/ASL2.0"
+        resources.excludes += "META-INF/*.kotlin_module" 
     }
 }
 
@@ -43,9 +51,16 @@ dependencies {
     implementation "androidx.core:core-ktx:1.13.1"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.4"
     implementation "androidx.activity:activity-compose:1.9.0"
-    implementation "androidx.compose.ui:ui:1.7.0"
-    implementation "androidx.compose.material3:material3:1.3.0"
+    implementation "androidx.compose.ui:ui:1.6.7"
+    implementation "androidx.compose.material3:material3:1.2.1"
     implementation "androidx.navigation:navigation-compose:2.8.0"
+
+    // Google Sign-In y Drive (Versiones compatibles con Android)
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation 'com.google.api-client:google-api-client-android:2.2.0'
+    implementation('com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
 
     // Dependencia de Material Components para temas XML
     implementation 'com.google.android.material:material:1.12.0'
@@ -57,12 +72,24 @@ dependencies {
 
     // ML Kit OCR
     implementation "com.google.mlkit:text-recognition:16.0.1"
+    // Kotlin Coroutines Play Services
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3'
+
+    // WorkManager
+    implementation "androidx.work:work-runtime-ktx:2.9.0"
 
     // PDF
     implementation "org.apache.pdfbox:pdfbox:2.0.29"
 
-    // Exportar Excel
-    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+    // Exportar Excel (POI)
+    implementation('org.apache.poi:poi-ooxml:5.2.5') {
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-api'
+    }
+    implementation 'com.fasterxml.woodstox:woodstox-core:6.5.1'
+    implementation 'org.apache.xmlbeans:xmlbeans:5.2.0' 
+    // Logging para POI (CRÍTICO para evitar crashes en Android)
+    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.20.0'
+    implementation 'org.slf4j:slf4j-android:1.7.36'
 
     // Gson para respaldos
     implementation 'com.google.code.gson:gson:2.10.1'

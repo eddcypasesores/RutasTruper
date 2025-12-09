@@ -16,17 +16,23 @@ interface FolioDao {
     @Query("SELECT * FROM folios")
     suspend fun getAllSimple(): List<Folio>
 
+    @Query("SELECT * FROM folios WHERE estado NOT IN ('Pagado', 'Cancelado')")
+    suspend fun getPendientes(): List<Folio>
+
     @Query("SELECT * FROM folios WHERE folioTruper = :folioTruper LIMIT 1")
     suspend fun findByFolioTruper(folioTruper: String): Folio?
 
+    @Query("SELECT * FROM folios WHERE folioTruper = :folioTruper AND rutaId = :rutaId LIMIT 1")
+    suspend fun findByFolioAndRuta(folioTruper: String, rutaId: Long): Folio?
+
     @Query("SELECT * FROM folios WHERE id = :folioId LIMIT 1")
-    suspend fun getById(folioId: Long): Folio?
+    fun getById(folioId: Long): Flow<Folio?> // <-- Cambiado a Flow
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(folio: Folio): Long
 
     @Update
-    suspend fun update(folio: Folio)
+    suspend fun update(folio: Folio): Int
 
     @Query("UPDATE folios SET estado = :estado WHERE id = :folioId")
     suspend fun updateEstado(folioId: Long, estado: String)

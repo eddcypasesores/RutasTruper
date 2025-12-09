@@ -279,11 +279,88 @@ public final class RutaDao_Impl implements RutaDao {
   }
 
   @Override
-  public Object getById(final long rutaId, final Continuation<? super Ruta> $completion) {
-    final String _sql = "SELECT * FROM rutas WHERE id = ? LIMIT 1";
+  public Object getAllSimple(final Continuation<? super List<Ruta>> $completion) {
+    final String _sql = "SELECT * FROM rutas";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<Ruta>>() {
+      @Override
+      @NonNull
+      public List<Ruta> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfNombre = CursorUtil.getColumnIndexOrThrow(_cursor, "nombre");
+          final int _cursorIndexOfFecha = CursorUtil.getColumnIndexOrThrow(_cursor, "fecha");
+          final int _cursorIndexOfFotoListadoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "fotoListadoUri");
+          final int _cursorIndexOfFoliosEsperados = CursorUtil.getColumnIndexOrThrow(_cursor, "foliosEsperados");
+          final int _cursorIndexOfFoliosRecibidosPdf = CursorUtil.getColumnIndexOrThrow(_cursor, "foliosRecibidosPdf");
+          final int _cursorIndexOfNotas = CursorUtil.getColumnIndexOrThrow(_cursor, "notas");
+          final int _cursorIndexOfTablaCargada = CursorUtil.getColumnIndexOrThrow(_cursor, "tablaCargada");
+          final int _cursorIndexOfPdfsCargados = CursorUtil.getColumnIndexOrThrow(_cursor, "pdfsCargados");
+          final List<Ruta> _result = new ArrayList<Ruta>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final Ruta _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpNombre;
+            _tmpNombre = _cursor.getString(_cursorIndexOfNombre);
+            final String _tmpFecha;
+            if (_cursor.isNull(_cursorIndexOfFecha)) {
+              _tmpFecha = null;
+            } else {
+              _tmpFecha = _cursor.getString(_cursorIndexOfFecha);
+            }
+            final String _tmpFotoListadoUri;
+            if (_cursor.isNull(_cursorIndexOfFotoListadoUri)) {
+              _tmpFotoListadoUri = null;
+            } else {
+              _tmpFotoListadoUri = _cursor.getString(_cursorIndexOfFotoListadoUri);
+            }
+            final String _tmpFoliosEsperados;
+            if (_cursor.isNull(_cursorIndexOfFoliosEsperados)) {
+              _tmpFoliosEsperados = null;
+            } else {
+              _tmpFoliosEsperados = _cursor.getString(_cursorIndexOfFoliosEsperados);
+            }
+            final String _tmpFoliosRecibidosPdf;
+            if (_cursor.isNull(_cursorIndexOfFoliosRecibidosPdf)) {
+              _tmpFoliosRecibidosPdf = null;
+            } else {
+              _tmpFoliosRecibidosPdf = _cursor.getString(_cursorIndexOfFoliosRecibidosPdf);
+            }
+            final String _tmpNotas;
+            if (_cursor.isNull(_cursorIndexOfNotas)) {
+              _tmpNotas = null;
+            } else {
+              _tmpNotas = _cursor.getString(_cursorIndexOfNotas);
+            }
+            final boolean _tmpTablaCargada;
+            final int _tmp;
+            _tmp = _cursor.getInt(_cursorIndexOfTablaCargada);
+            _tmpTablaCargada = _tmp != 0;
+            final boolean _tmpPdfsCargados;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfPdfsCargados);
+            _tmpPdfsCargados = _tmp_1 != 0;
+            _item = new Ruta(_tmpId,_tmpNombre,_tmpFecha,_tmpFotoListadoUri,_tmpFoliosEsperados,_tmpFoliosRecibidosPdf,_tmpNotas,_tmpTablaCargada,_tmpPdfsCargados);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object getById(final long id, final Continuation<? super Ruta> $completion) {
+    final String _sql = "SELECT * FROM rutas WHERE id = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
-    _statement.bindLong(_argIndex, rutaId);
+    _statement.bindLong(_argIndex, id);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
     return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Ruta>() {
       @Override

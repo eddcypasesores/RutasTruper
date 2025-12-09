@@ -6,12 +6,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RutaDao {
-
     @Query("SELECT * FROM rutas ORDER BY fecha DESC")
     fun getAll(): Flow<List<Ruta>>
 
-    @Query("SELECT * FROM rutas WHERE id = :rutaId LIMIT 1")
-    suspend fun getById(rutaId: Long): Ruta?
+    @Query("SELECT * FROM rutas")
+    suspend fun getAllSimple(): List<Ruta>
+
+    @Query("SELECT * FROM rutas WHERE id = :id")
+    suspend fun getById(id: Long): Ruta?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(ruta: Ruta): Long

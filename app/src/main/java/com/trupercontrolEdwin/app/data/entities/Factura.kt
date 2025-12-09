@@ -1,22 +1,29 @@
 package com.trupercontrolEdwin.app.data.entities
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "facturas")
+@Entity(
+    tableName = "facturas",
+    foreignKeys = [ForeignKey(
+        entity = Folio::class,
+        parentColumns = ["id"],
+        childColumns = ["folioId"],
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index(value = ["folioId"])]
+)
 data class Factura(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val folioId: Long,                // FK → Folio
-    val folioFactura: String,         // EZ1, EZ7...
-    val folioFacturaNum: Int? = null, // 1, 7...
-    val fechaEmision: String? = null,
-    val subtotal: Double = 0.0,
-    val iva: Double = 0.0,
-    val total: Double = 0.0,
-    val estatus: String = "Pendiente", // Pendiente, Pagada, Cancelada
-    val motivoCancelacion: String? = null,
-    val folioReemplaza: String? = null,
-    val pdfUri: String? = null,
-    val xmlUri: String? = null,
-    val observaciones: String? = null
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val folioId: Long,
+    val folioFactura: String, 
+    val subtotal: Double,
+    val iva: Double,
+    val total: Double,
+    var estado: String, // "Pendiente", "Pagado", "Cancelado"
+    var motivoCancelacion: String? = null,
+    val fechaCreacion: Long = System.currentTimeMillis()
 )

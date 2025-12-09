@@ -1268,7 +1268,11 @@ attr yearStyle
 attr yearTodayStyle
 bool abc_action_bar_embed_tabs
 bool abc_config_actionMenuItemAllCaps
+bool enable_system_alarm_service_default
+bool enable_system_foreground_service_default
+bool enable_system_job_service_default
 bool mtrl_btn_textappearance_all_caps
+bool workmanager_test_configuration
 color abc_background_cache_hint_selector_material_dark
 color abc_background_cache_hint_selector_material_light
 color abc_btn_colored_borderless_text_material
@@ -3580,7 +3584,6 @@ integer m3_sys_shape_corner_full_corner_family
 integer m3_sys_shape_corner_large_corner_family
 integer m3_sys_shape_corner_medium_corner_family
 integer m3_sys_shape_corner_small_corner_family
-integer m3c_window_layout_in_display_cutout_mode
 integer material_motion_duration_long_1
 integer material_motion_duration_long_2
 integer material_motion_duration_medium_1
@@ -3884,7 +3887,6 @@ string m3c_date_range_picker_title
 string m3c_dialog
 string m3c_dropdown_menu_collapsed
 string m3c_dropdown_menu_expanded
-string m3c_dropdown_menu_toggle
 string m3c_search_bar_search
 string m3c_snackbar_dismiss
 string m3c_suggestions_available
@@ -4306,8 +4308,6 @@ style CardView
 style CardView_Dark
 style CardView_Light
 style DialogWindowTheme
-style EdgeToEdgeFloatingDialogTheme
-style EdgeToEdgeFloatingDialogWindowTheme
 style FloatingDialogTheme
 style FloatingDialogWindowTheme
 style MaterialAlertDialog_Material3
@@ -5303,3 +5303,4 @@ styleable View android_theme android_focusable paddingEnd paddingStart theme
 styleable ViewBackgroundHelper android_background backgroundTint backgroundTintMode
 styleable ViewPager2 android_orientation
 styleable ViewStubCompat android_id android_layout android_inflatedId
+xml file_paths

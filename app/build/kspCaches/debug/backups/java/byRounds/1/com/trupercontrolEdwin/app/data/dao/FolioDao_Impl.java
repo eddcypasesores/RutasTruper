@@ -14,7 +14,6 @@ import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.trupercontrolEdwin.app.data.entities.Folio;
-import java.lang.Boolean;
 import java.lang.Class;
 import java.lang.Double;
 import java.lang.Exception;
@@ -50,7 +49,7 @@ public final class FolioDao_Impl implements FolioDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `folios` (`id`,`rutaId`,`folioTruper`,`nombreEstablecimiento`,`direccion`,`tipoFachada`,`m2Reportados`,`m2Final`,`figuras`,`tarifaTipo`,`estado`,`observaciones`,`solicitudPdfUri`,`facturaPdfUri`,`facturaXmlUri`,`validacionMensaje`,`validacionFotosUris`,`cambioTexto`,`facturacionExcelUri`,`acuseCancelacionUri`,`documentoPagoUri`,`listadoCoincide`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `folios` (`id`,`rutaId`,`folioTruper`,`nombreEstablecimiento`,`direccion`,`tipoFachada`,`m2Reportados`,`m2Final`,`figuras`,`tarifaTipo`,`estado`,`observaciones`,`cambioTexto`,`tipoSolicitud`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -100,56 +99,15 @@ public final class FolioDao_Impl implements FolioDao {
         } else {
           statement.bindString(12, entity.getObservaciones());
         }
-        if (entity.getSolicitudPdfUri() == null) {
+        if (entity.getCambioTexto() == null) {
           statement.bindNull(13);
         } else {
-          statement.bindString(13, entity.getSolicitudPdfUri());
+          statement.bindString(13, entity.getCambioTexto());
         }
-        if (entity.getFacturaPdfUri() == null) {
+        if (entity.getTipoSolicitud() == null) {
           statement.bindNull(14);
         } else {
-          statement.bindString(14, entity.getFacturaPdfUri());
-        }
-        if (entity.getFacturaXmlUri() == null) {
-          statement.bindNull(15);
-        } else {
-          statement.bindString(15, entity.getFacturaXmlUri());
-        }
-        if (entity.getValidacionMensaje() == null) {
-          statement.bindNull(16);
-        } else {
-          statement.bindString(16, entity.getValidacionMensaje());
-        }
-        if (entity.getValidacionFotosUris() == null) {
-          statement.bindNull(17);
-        } else {
-          statement.bindString(17, entity.getValidacionFotosUris());
-        }
-        if (entity.getCambioTexto() == null) {
-          statement.bindNull(18);
-        } else {
-          statement.bindString(18, entity.getCambioTexto());
-        }
-        if (entity.getFacturacionExcelUri() == null) {
-          statement.bindNull(19);
-        } else {
-          statement.bindString(19, entity.getFacturacionExcelUri());
-        }
-        if (entity.getAcuseCancelacionUri() == null) {
-          statement.bindNull(20);
-        } else {
-          statement.bindString(20, entity.getAcuseCancelacionUri());
-        }
-        if (entity.getDocumentoPagoUri() == null) {
-          statement.bindNull(21);
-        } else {
-          statement.bindString(21, entity.getDocumentoPagoUri());
-        }
-        final Integer _tmp = entity.getListadoCoincide() == null ? null : (entity.getListadoCoincide() ? 1 : 0);
-        if (_tmp == null) {
-          statement.bindNull(22);
-        } else {
-          statement.bindLong(22, _tmp);
+          statement.bindString(14, entity.getTipoSolicitud());
         }
       }
     };
@@ -157,7 +115,7 @@ public final class FolioDao_Impl implements FolioDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `folios` SET `id` = ?,`rutaId` = ?,`folioTruper` = ?,`nombreEstablecimiento` = ?,`direccion` = ?,`tipoFachada` = ?,`m2Reportados` = ?,`m2Final` = ?,`figuras` = ?,`tarifaTipo` = ?,`estado` = ?,`observaciones` = ?,`solicitudPdfUri` = ?,`facturaPdfUri` = ?,`facturaXmlUri` = ?,`validacionMensaje` = ?,`validacionFotosUris` = ?,`cambioTexto` = ?,`facturacionExcelUri` = ?,`acuseCancelacionUri` = ?,`documentoPagoUri` = ?,`listadoCoincide` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `folios` SET `id` = ?,`rutaId` = ?,`folioTruper` = ?,`nombreEstablecimiento` = ?,`direccion` = ?,`tipoFachada` = ?,`m2Reportados` = ?,`m2Final` = ?,`figuras` = ?,`tarifaTipo` = ?,`estado` = ?,`observaciones` = ?,`cambioTexto` = ?,`tipoSolicitud` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -207,58 +165,17 @@ public final class FolioDao_Impl implements FolioDao {
         } else {
           statement.bindString(12, entity.getObservaciones());
         }
-        if (entity.getSolicitudPdfUri() == null) {
+        if (entity.getCambioTexto() == null) {
           statement.bindNull(13);
         } else {
-          statement.bindString(13, entity.getSolicitudPdfUri());
+          statement.bindString(13, entity.getCambioTexto());
         }
-        if (entity.getFacturaPdfUri() == null) {
+        if (entity.getTipoSolicitud() == null) {
           statement.bindNull(14);
         } else {
-          statement.bindString(14, entity.getFacturaPdfUri());
+          statement.bindString(14, entity.getTipoSolicitud());
         }
-        if (entity.getFacturaXmlUri() == null) {
-          statement.bindNull(15);
-        } else {
-          statement.bindString(15, entity.getFacturaXmlUri());
-        }
-        if (entity.getValidacionMensaje() == null) {
-          statement.bindNull(16);
-        } else {
-          statement.bindString(16, entity.getValidacionMensaje());
-        }
-        if (entity.getValidacionFotosUris() == null) {
-          statement.bindNull(17);
-        } else {
-          statement.bindString(17, entity.getValidacionFotosUris());
-        }
-        if (entity.getCambioTexto() == null) {
-          statement.bindNull(18);
-        } else {
-          statement.bindString(18, entity.getCambioTexto());
-        }
-        if (entity.getFacturacionExcelUri() == null) {
-          statement.bindNull(19);
-        } else {
-          statement.bindString(19, entity.getFacturacionExcelUri());
-        }
-        if (entity.getAcuseCancelacionUri() == null) {
-          statement.bindNull(20);
-        } else {
-          statement.bindString(20, entity.getAcuseCancelacionUri());
-        }
-        if (entity.getDocumentoPagoUri() == null) {
-          statement.bindNull(21);
-        } else {
-          statement.bindString(21, entity.getDocumentoPagoUri());
-        }
-        final Integer _tmp = entity.getListadoCoincide() == null ? null : (entity.getListadoCoincide() ? 1 : 0);
-        if (_tmp == null) {
-          statement.bindNull(22);
-        } else {
-          statement.bindLong(22, _tmp);
-        }
-        statement.bindLong(23, entity.getId());
+        statement.bindLong(15, entity.getId());
       }
     };
     this.__preparedStmtOfUpdateEstado = new SharedSQLiteStatement(__db) {
@@ -290,16 +207,17 @@ public final class FolioDao_Impl implements FolioDao {
   }
 
   @Override
-  public Object update(final Folio folio, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+  public Object update(final Folio folio, final Continuation<? super Integer> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Integer>() {
       @Override
       @NonNull
-      public Unit call() throws Exception {
+      public Integer call() throws Exception {
+        int _total = 0;
         __db.beginTransaction();
         try {
-          __updateAdapterOfFolio.handle(folio);
+          _total += __updateAdapterOfFolio.handle(folio);
           __db.setTransactionSuccessful();
-          return Unit.INSTANCE;
+          return _total;
         } finally {
           __db.endTransaction();
         }
@@ -359,16 +277,8 @@ public final class FolioDao_Impl implements FolioDao {
           final int _cursorIndexOfTarifaTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tarifaTipo");
           final int _cursorIndexOfEstado = CursorUtil.getColumnIndexOrThrow(_cursor, "estado");
           final int _cursorIndexOfObservaciones = CursorUtil.getColumnIndexOrThrow(_cursor, "observaciones");
-          final int _cursorIndexOfSolicitudPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "solicitudPdfUri");
-          final int _cursorIndexOfFacturaPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaPdfUri");
-          final int _cursorIndexOfFacturaXmlUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaXmlUri");
-          final int _cursorIndexOfValidacionMensaje = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionMensaje");
-          final int _cursorIndexOfValidacionFotosUris = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionFotosUris");
           final int _cursorIndexOfCambioTexto = CursorUtil.getColumnIndexOrThrow(_cursor, "cambioTexto");
-          final int _cursorIndexOfFacturacionExcelUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturacionExcelUri");
-          final int _cursorIndexOfAcuseCancelacionUri = CursorUtil.getColumnIndexOrThrow(_cursor, "acuseCancelacionUri");
-          final int _cursorIndexOfDocumentoPagoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "documentoPagoUri");
-          final int _cursorIndexOfListadoCoincide = CursorUtil.getColumnIndexOrThrow(_cursor, "listadoCoincide");
+          final int _cursorIndexOfTipoSolicitud = CursorUtil.getColumnIndexOrThrow(_cursor, "tipoSolicitud");
           final List<Folio> _result = new ArrayList<Folio>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Folio _item;
@@ -428,69 +338,19 @@ public final class FolioDao_Impl implements FolioDao {
             } else {
               _tmpObservaciones = _cursor.getString(_cursorIndexOfObservaciones);
             }
-            final String _tmpSolicitudPdfUri;
-            if (_cursor.isNull(_cursorIndexOfSolicitudPdfUri)) {
-              _tmpSolicitudPdfUri = null;
-            } else {
-              _tmpSolicitudPdfUri = _cursor.getString(_cursorIndexOfSolicitudPdfUri);
-            }
-            final String _tmpFacturaPdfUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaPdfUri)) {
-              _tmpFacturaPdfUri = null;
-            } else {
-              _tmpFacturaPdfUri = _cursor.getString(_cursorIndexOfFacturaPdfUri);
-            }
-            final String _tmpFacturaXmlUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaXmlUri)) {
-              _tmpFacturaXmlUri = null;
-            } else {
-              _tmpFacturaXmlUri = _cursor.getString(_cursorIndexOfFacturaXmlUri);
-            }
-            final String _tmpValidacionMensaje;
-            if (_cursor.isNull(_cursorIndexOfValidacionMensaje)) {
-              _tmpValidacionMensaje = null;
-            } else {
-              _tmpValidacionMensaje = _cursor.getString(_cursorIndexOfValidacionMensaje);
-            }
-            final String _tmpValidacionFotosUris;
-            if (_cursor.isNull(_cursorIndexOfValidacionFotosUris)) {
-              _tmpValidacionFotosUris = null;
-            } else {
-              _tmpValidacionFotosUris = _cursor.getString(_cursorIndexOfValidacionFotosUris);
-            }
             final String _tmpCambioTexto;
             if (_cursor.isNull(_cursorIndexOfCambioTexto)) {
               _tmpCambioTexto = null;
             } else {
               _tmpCambioTexto = _cursor.getString(_cursorIndexOfCambioTexto);
             }
-            final String _tmpFacturacionExcelUri;
-            if (_cursor.isNull(_cursorIndexOfFacturacionExcelUri)) {
-              _tmpFacturacionExcelUri = null;
+            final String _tmpTipoSolicitud;
+            if (_cursor.isNull(_cursorIndexOfTipoSolicitud)) {
+              _tmpTipoSolicitud = null;
             } else {
-              _tmpFacturacionExcelUri = _cursor.getString(_cursorIndexOfFacturacionExcelUri);
+              _tmpTipoSolicitud = _cursor.getString(_cursorIndexOfTipoSolicitud);
             }
-            final String _tmpAcuseCancelacionUri;
-            if (_cursor.isNull(_cursorIndexOfAcuseCancelacionUri)) {
-              _tmpAcuseCancelacionUri = null;
-            } else {
-              _tmpAcuseCancelacionUri = _cursor.getString(_cursorIndexOfAcuseCancelacionUri);
-            }
-            final String _tmpDocumentoPagoUri;
-            if (_cursor.isNull(_cursorIndexOfDocumentoPagoUri)) {
-              _tmpDocumentoPagoUri = null;
-            } else {
-              _tmpDocumentoPagoUri = _cursor.getString(_cursorIndexOfDocumentoPagoUri);
-            }
-            final Boolean _tmpListadoCoincide;
-            final Integer _tmp;
-            if (_cursor.isNull(_cursorIndexOfListadoCoincide)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getInt(_cursorIndexOfListadoCoincide);
-            }
-            _tmpListadoCoincide = _tmp == null ? null : _tmp != 0;
-            _item = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpSolicitudPdfUri,_tmpFacturaPdfUri,_tmpFacturaXmlUri,_tmpValidacionMensaje,_tmpValidacionFotosUris,_tmpCambioTexto,_tmpFacturacionExcelUri,_tmpAcuseCancelacionUri,_tmpDocumentoPagoUri,_tmpListadoCoincide);
+            _item = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpCambioTexto,_tmpTipoSolicitud);
             _result.add(_item);
           }
           return _result;
@@ -532,16 +392,8 @@ public final class FolioDao_Impl implements FolioDao {
           final int _cursorIndexOfTarifaTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tarifaTipo");
           final int _cursorIndexOfEstado = CursorUtil.getColumnIndexOrThrow(_cursor, "estado");
           final int _cursorIndexOfObservaciones = CursorUtil.getColumnIndexOrThrow(_cursor, "observaciones");
-          final int _cursorIndexOfSolicitudPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "solicitudPdfUri");
-          final int _cursorIndexOfFacturaPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaPdfUri");
-          final int _cursorIndexOfFacturaXmlUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaXmlUri");
-          final int _cursorIndexOfValidacionMensaje = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionMensaje");
-          final int _cursorIndexOfValidacionFotosUris = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionFotosUris");
           final int _cursorIndexOfCambioTexto = CursorUtil.getColumnIndexOrThrow(_cursor, "cambioTexto");
-          final int _cursorIndexOfFacturacionExcelUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturacionExcelUri");
-          final int _cursorIndexOfAcuseCancelacionUri = CursorUtil.getColumnIndexOrThrow(_cursor, "acuseCancelacionUri");
-          final int _cursorIndexOfDocumentoPagoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "documentoPagoUri");
-          final int _cursorIndexOfListadoCoincide = CursorUtil.getColumnIndexOrThrow(_cursor, "listadoCoincide");
+          final int _cursorIndexOfTipoSolicitud = CursorUtil.getColumnIndexOrThrow(_cursor, "tipoSolicitud");
           final List<Folio> _result = new ArrayList<Folio>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Folio _item;
@@ -601,69 +453,19 @@ public final class FolioDao_Impl implements FolioDao {
             } else {
               _tmpObservaciones = _cursor.getString(_cursorIndexOfObservaciones);
             }
-            final String _tmpSolicitudPdfUri;
-            if (_cursor.isNull(_cursorIndexOfSolicitudPdfUri)) {
-              _tmpSolicitudPdfUri = null;
-            } else {
-              _tmpSolicitudPdfUri = _cursor.getString(_cursorIndexOfSolicitudPdfUri);
-            }
-            final String _tmpFacturaPdfUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaPdfUri)) {
-              _tmpFacturaPdfUri = null;
-            } else {
-              _tmpFacturaPdfUri = _cursor.getString(_cursorIndexOfFacturaPdfUri);
-            }
-            final String _tmpFacturaXmlUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaXmlUri)) {
-              _tmpFacturaXmlUri = null;
-            } else {
-              _tmpFacturaXmlUri = _cursor.getString(_cursorIndexOfFacturaXmlUri);
-            }
-            final String _tmpValidacionMensaje;
-            if (_cursor.isNull(_cursorIndexOfValidacionMensaje)) {
-              _tmpValidacionMensaje = null;
-            } else {
-              _tmpValidacionMensaje = _cursor.getString(_cursorIndexOfValidacionMensaje);
-            }
-            final String _tmpValidacionFotosUris;
-            if (_cursor.isNull(_cursorIndexOfValidacionFotosUris)) {
-              _tmpValidacionFotosUris = null;
-            } else {
-              _tmpValidacionFotosUris = _cursor.getString(_cursorIndexOfValidacionFotosUris);
-            }
             final String _tmpCambioTexto;
             if (_cursor.isNull(_cursorIndexOfCambioTexto)) {
               _tmpCambioTexto = null;
             } else {
               _tmpCambioTexto = _cursor.getString(_cursorIndexOfCambioTexto);
             }
-            final String _tmpFacturacionExcelUri;
-            if (_cursor.isNull(_cursorIndexOfFacturacionExcelUri)) {
-              _tmpFacturacionExcelUri = null;
+            final String _tmpTipoSolicitud;
+            if (_cursor.isNull(_cursorIndexOfTipoSolicitud)) {
+              _tmpTipoSolicitud = null;
             } else {
-              _tmpFacturacionExcelUri = _cursor.getString(_cursorIndexOfFacturacionExcelUri);
+              _tmpTipoSolicitud = _cursor.getString(_cursorIndexOfTipoSolicitud);
             }
-            final String _tmpAcuseCancelacionUri;
-            if (_cursor.isNull(_cursorIndexOfAcuseCancelacionUri)) {
-              _tmpAcuseCancelacionUri = null;
-            } else {
-              _tmpAcuseCancelacionUri = _cursor.getString(_cursorIndexOfAcuseCancelacionUri);
-            }
-            final String _tmpDocumentoPagoUri;
-            if (_cursor.isNull(_cursorIndexOfDocumentoPagoUri)) {
-              _tmpDocumentoPagoUri = null;
-            } else {
-              _tmpDocumentoPagoUri = _cursor.getString(_cursorIndexOfDocumentoPagoUri);
-            }
-            final Boolean _tmpListadoCoincide;
-            final Integer _tmp;
-            if (_cursor.isNull(_cursorIndexOfListadoCoincide)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getInt(_cursorIndexOfListadoCoincide);
-            }
-            _tmpListadoCoincide = _tmp == null ? null : _tmp != 0;
-            _item = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpSolicitudPdfUri,_tmpFacturaPdfUri,_tmpFacturaXmlUri,_tmpValidacionMensaje,_tmpValidacionFotosUris,_tmpCambioTexto,_tmpFacturacionExcelUri,_tmpAcuseCancelacionUri,_tmpDocumentoPagoUri,_tmpListadoCoincide);
+            _item = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpCambioTexto,_tmpTipoSolicitud);
             _result.add(_item);
           }
           return _result;
@@ -698,16 +500,8 @@ public final class FolioDao_Impl implements FolioDao {
           final int _cursorIndexOfTarifaTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tarifaTipo");
           final int _cursorIndexOfEstado = CursorUtil.getColumnIndexOrThrow(_cursor, "estado");
           final int _cursorIndexOfObservaciones = CursorUtil.getColumnIndexOrThrow(_cursor, "observaciones");
-          final int _cursorIndexOfSolicitudPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "solicitudPdfUri");
-          final int _cursorIndexOfFacturaPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaPdfUri");
-          final int _cursorIndexOfFacturaXmlUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaXmlUri");
-          final int _cursorIndexOfValidacionMensaje = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionMensaje");
-          final int _cursorIndexOfValidacionFotosUris = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionFotosUris");
           final int _cursorIndexOfCambioTexto = CursorUtil.getColumnIndexOrThrow(_cursor, "cambioTexto");
-          final int _cursorIndexOfFacturacionExcelUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturacionExcelUri");
-          final int _cursorIndexOfAcuseCancelacionUri = CursorUtil.getColumnIndexOrThrow(_cursor, "acuseCancelacionUri");
-          final int _cursorIndexOfDocumentoPagoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "documentoPagoUri");
-          final int _cursorIndexOfListadoCoincide = CursorUtil.getColumnIndexOrThrow(_cursor, "listadoCoincide");
+          final int _cursorIndexOfTipoSolicitud = CursorUtil.getColumnIndexOrThrow(_cursor, "tipoSolicitud");
           final List<Folio> _result = new ArrayList<Folio>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Folio _item;
@@ -767,35 +561,113 @@ public final class FolioDao_Impl implements FolioDao {
             } else {
               _tmpObservaciones = _cursor.getString(_cursorIndexOfObservaciones);
             }
-            final String _tmpSolicitudPdfUri;
-            if (_cursor.isNull(_cursorIndexOfSolicitudPdfUri)) {
-              _tmpSolicitudPdfUri = null;
+            final String _tmpCambioTexto;
+            if (_cursor.isNull(_cursorIndexOfCambioTexto)) {
+              _tmpCambioTexto = null;
             } else {
-              _tmpSolicitudPdfUri = _cursor.getString(_cursorIndexOfSolicitudPdfUri);
+              _tmpCambioTexto = _cursor.getString(_cursorIndexOfCambioTexto);
             }
-            final String _tmpFacturaPdfUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaPdfUri)) {
-              _tmpFacturaPdfUri = null;
+            final String _tmpTipoSolicitud;
+            if (_cursor.isNull(_cursorIndexOfTipoSolicitud)) {
+              _tmpTipoSolicitud = null;
             } else {
-              _tmpFacturaPdfUri = _cursor.getString(_cursorIndexOfFacturaPdfUri);
+              _tmpTipoSolicitud = _cursor.getString(_cursorIndexOfTipoSolicitud);
             }
-            final String _tmpFacturaXmlUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaXmlUri)) {
-              _tmpFacturaXmlUri = null;
+            _item = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpCambioTexto,_tmpTipoSolicitud);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object getPendientes(final Continuation<? super List<Folio>> $completion) {
+    final String _sql = "SELECT * FROM folios WHERE estado NOT IN ('Pagado', 'Cancelado')";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<Folio>>() {
+      @Override
+      @NonNull
+      public List<Folio> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfRutaId = CursorUtil.getColumnIndexOrThrow(_cursor, "rutaId");
+          final int _cursorIndexOfFolioTruper = CursorUtil.getColumnIndexOrThrow(_cursor, "folioTruper");
+          final int _cursorIndexOfNombreEstablecimiento = CursorUtil.getColumnIndexOrThrow(_cursor, "nombreEstablecimiento");
+          final int _cursorIndexOfDireccion = CursorUtil.getColumnIndexOrThrow(_cursor, "direccion");
+          final int _cursorIndexOfTipoFachada = CursorUtil.getColumnIndexOrThrow(_cursor, "tipoFachada");
+          final int _cursorIndexOfM2Reportados = CursorUtil.getColumnIndexOrThrow(_cursor, "m2Reportados");
+          final int _cursorIndexOfM2Final = CursorUtil.getColumnIndexOrThrow(_cursor, "m2Final");
+          final int _cursorIndexOfFiguras = CursorUtil.getColumnIndexOrThrow(_cursor, "figuras");
+          final int _cursorIndexOfTarifaTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tarifaTipo");
+          final int _cursorIndexOfEstado = CursorUtil.getColumnIndexOrThrow(_cursor, "estado");
+          final int _cursorIndexOfObservaciones = CursorUtil.getColumnIndexOrThrow(_cursor, "observaciones");
+          final int _cursorIndexOfCambioTexto = CursorUtil.getColumnIndexOrThrow(_cursor, "cambioTexto");
+          final int _cursorIndexOfTipoSolicitud = CursorUtil.getColumnIndexOrThrow(_cursor, "tipoSolicitud");
+          final List<Folio> _result = new ArrayList<Folio>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final Folio _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpRutaId;
+            _tmpRutaId = _cursor.getLong(_cursorIndexOfRutaId);
+            final String _tmpFolioTruper;
+            _tmpFolioTruper = _cursor.getString(_cursorIndexOfFolioTruper);
+            final String _tmpNombreEstablecimiento;
+            if (_cursor.isNull(_cursorIndexOfNombreEstablecimiento)) {
+              _tmpNombreEstablecimiento = null;
             } else {
-              _tmpFacturaXmlUri = _cursor.getString(_cursorIndexOfFacturaXmlUri);
+              _tmpNombreEstablecimiento = _cursor.getString(_cursorIndexOfNombreEstablecimiento);
             }
-            final String _tmpValidacionMensaje;
-            if (_cursor.isNull(_cursorIndexOfValidacionMensaje)) {
-              _tmpValidacionMensaje = null;
+            final String _tmpDireccion;
+            if (_cursor.isNull(_cursorIndexOfDireccion)) {
+              _tmpDireccion = null;
             } else {
-              _tmpValidacionMensaje = _cursor.getString(_cursorIndexOfValidacionMensaje);
+              _tmpDireccion = _cursor.getString(_cursorIndexOfDireccion);
             }
-            final String _tmpValidacionFotosUris;
-            if (_cursor.isNull(_cursorIndexOfValidacionFotosUris)) {
-              _tmpValidacionFotosUris = null;
+            final String _tmpTipoFachada;
+            if (_cursor.isNull(_cursorIndexOfTipoFachada)) {
+              _tmpTipoFachada = null;
             } else {
-              _tmpValidacionFotosUris = _cursor.getString(_cursorIndexOfValidacionFotosUris);
+              _tmpTipoFachada = _cursor.getString(_cursorIndexOfTipoFachada);
+            }
+            final Double _tmpM2Reportados;
+            if (_cursor.isNull(_cursorIndexOfM2Reportados)) {
+              _tmpM2Reportados = null;
+            } else {
+              _tmpM2Reportados = _cursor.getDouble(_cursorIndexOfM2Reportados);
+            }
+            final Double _tmpM2Final;
+            if (_cursor.isNull(_cursorIndexOfM2Final)) {
+              _tmpM2Final = null;
+            } else {
+              _tmpM2Final = _cursor.getDouble(_cursorIndexOfM2Final);
+            }
+            final Integer _tmpFiguras;
+            if (_cursor.isNull(_cursorIndexOfFiguras)) {
+              _tmpFiguras = null;
+            } else {
+              _tmpFiguras = _cursor.getInt(_cursorIndexOfFiguras);
+            }
+            final String _tmpTarifaTipo;
+            if (_cursor.isNull(_cursorIndexOfTarifaTipo)) {
+              _tmpTarifaTipo = null;
+            } else {
+              _tmpTarifaTipo = _cursor.getString(_cursorIndexOfTarifaTipo);
+            }
+            final String _tmpEstado;
+            _tmpEstado = _cursor.getString(_cursorIndexOfEstado);
+            final String _tmpObservaciones;
+            if (_cursor.isNull(_cursorIndexOfObservaciones)) {
+              _tmpObservaciones = null;
+            } else {
+              _tmpObservaciones = _cursor.getString(_cursorIndexOfObservaciones);
             }
             final String _tmpCambioTexto;
             if (_cursor.isNull(_cursorIndexOfCambioTexto)) {
@@ -803,33 +675,13 @@ public final class FolioDao_Impl implements FolioDao {
             } else {
               _tmpCambioTexto = _cursor.getString(_cursorIndexOfCambioTexto);
             }
-            final String _tmpFacturacionExcelUri;
-            if (_cursor.isNull(_cursorIndexOfFacturacionExcelUri)) {
-              _tmpFacturacionExcelUri = null;
+            final String _tmpTipoSolicitud;
+            if (_cursor.isNull(_cursorIndexOfTipoSolicitud)) {
+              _tmpTipoSolicitud = null;
             } else {
-              _tmpFacturacionExcelUri = _cursor.getString(_cursorIndexOfFacturacionExcelUri);
+              _tmpTipoSolicitud = _cursor.getString(_cursorIndexOfTipoSolicitud);
             }
-            final String _tmpAcuseCancelacionUri;
-            if (_cursor.isNull(_cursorIndexOfAcuseCancelacionUri)) {
-              _tmpAcuseCancelacionUri = null;
-            } else {
-              _tmpAcuseCancelacionUri = _cursor.getString(_cursorIndexOfAcuseCancelacionUri);
-            }
-            final String _tmpDocumentoPagoUri;
-            if (_cursor.isNull(_cursorIndexOfDocumentoPagoUri)) {
-              _tmpDocumentoPagoUri = null;
-            } else {
-              _tmpDocumentoPagoUri = _cursor.getString(_cursorIndexOfDocumentoPagoUri);
-            }
-            final Boolean _tmpListadoCoincide;
-            final Integer _tmp;
-            if (_cursor.isNull(_cursorIndexOfListadoCoincide)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getInt(_cursorIndexOfListadoCoincide);
-            }
-            _tmpListadoCoincide = _tmp == null ? null : _tmp != 0;
-            _item = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpSolicitudPdfUri,_tmpFacturaPdfUri,_tmpFacturaXmlUri,_tmpValidacionMensaje,_tmpValidacionFotosUris,_tmpCambioTexto,_tmpFacturacionExcelUri,_tmpAcuseCancelacionUri,_tmpDocumentoPagoUri,_tmpListadoCoincide);
+            _item = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpCambioTexto,_tmpTipoSolicitud);
             _result.add(_item);
           }
           return _result;
@@ -867,16 +719,8 @@ public final class FolioDao_Impl implements FolioDao {
           final int _cursorIndexOfTarifaTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tarifaTipo");
           final int _cursorIndexOfEstado = CursorUtil.getColumnIndexOrThrow(_cursor, "estado");
           final int _cursorIndexOfObservaciones = CursorUtil.getColumnIndexOrThrow(_cursor, "observaciones");
-          final int _cursorIndexOfSolicitudPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "solicitudPdfUri");
-          final int _cursorIndexOfFacturaPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaPdfUri");
-          final int _cursorIndexOfFacturaXmlUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaXmlUri");
-          final int _cursorIndexOfValidacionMensaje = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionMensaje");
-          final int _cursorIndexOfValidacionFotosUris = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionFotosUris");
           final int _cursorIndexOfCambioTexto = CursorUtil.getColumnIndexOrThrow(_cursor, "cambioTexto");
-          final int _cursorIndexOfFacturacionExcelUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturacionExcelUri");
-          final int _cursorIndexOfAcuseCancelacionUri = CursorUtil.getColumnIndexOrThrow(_cursor, "acuseCancelacionUri");
-          final int _cursorIndexOfDocumentoPagoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "documentoPagoUri");
-          final int _cursorIndexOfListadoCoincide = CursorUtil.getColumnIndexOrThrow(_cursor, "listadoCoincide");
+          final int _cursorIndexOfTipoSolicitud = CursorUtil.getColumnIndexOrThrow(_cursor, "tipoSolicitud");
           final Folio _result;
           if (_cursor.moveToFirst()) {
             final long _tmpId;
@@ -935,69 +779,19 @@ public final class FolioDao_Impl implements FolioDao {
             } else {
               _tmpObservaciones = _cursor.getString(_cursorIndexOfObservaciones);
             }
-            final String _tmpSolicitudPdfUri;
-            if (_cursor.isNull(_cursorIndexOfSolicitudPdfUri)) {
-              _tmpSolicitudPdfUri = null;
-            } else {
-              _tmpSolicitudPdfUri = _cursor.getString(_cursorIndexOfSolicitudPdfUri);
-            }
-            final String _tmpFacturaPdfUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaPdfUri)) {
-              _tmpFacturaPdfUri = null;
-            } else {
-              _tmpFacturaPdfUri = _cursor.getString(_cursorIndexOfFacturaPdfUri);
-            }
-            final String _tmpFacturaXmlUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaXmlUri)) {
-              _tmpFacturaXmlUri = null;
-            } else {
-              _tmpFacturaXmlUri = _cursor.getString(_cursorIndexOfFacturaXmlUri);
-            }
-            final String _tmpValidacionMensaje;
-            if (_cursor.isNull(_cursorIndexOfValidacionMensaje)) {
-              _tmpValidacionMensaje = null;
-            } else {
-              _tmpValidacionMensaje = _cursor.getString(_cursorIndexOfValidacionMensaje);
-            }
-            final String _tmpValidacionFotosUris;
-            if (_cursor.isNull(_cursorIndexOfValidacionFotosUris)) {
-              _tmpValidacionFotosUris = null;
-            } else {
-              _tmpValidacionFotosUris = _cursor.getString(_cursorIndexOfValidacionFotosUris);
-            }
             final String _tmpCambioTexto;
             if (_cursor.isNull(_cursorIndexOfCambioTexto)) {
               _tmpCambioTexto = null;
             } else {
               _tmpCambioTexto = _cursor.getString(_cursorIndexOfCambioTexto);
             }
-            final String _tmpFacturacionExcelUri;
-            if (_cursor.isNull(_cursorIndexOfFacturacionExcelUri)) {
-              _tmpFacturacionExcelUri = null;
+            final String _tmpTipoSolicitud;
+            if (_cursor.isNull(_cursorIndexOfTipoSolicitud)) {
+              _tmpTipoSolicitud = null;
             } else {
-              _tmpFacturacionExcelUri = _cursor.getString(_cursorIndexOfFacturacionExcelUri);
+              _tmpTipoSolicitud = _cursor.getString(_cursorIndexOfTipoSolicitud);
             }
-            final String _tmpAcuseCancelacionUri;
-            if (_cursor.isNull(_cursorIndexOfAcuseCancelacionUri)) {
-              _tmpAcuseCancelacionUri = null;
-            } else {
-              _tmpAcuseCancelacionUri = _cursor.getString(_cursorIndexOfAcuseCancelacionUri);
-            }
-            final String _tmpDocumentoPagoUri;
-            if (_cursor.isNull(_cursorIndexOfDocumentoPagoUri)) {
-              _tmpDocumentoPagoUri = null;
-            } else {
-              _tmpDocumentoPagoUri = _cursor.getString(_cursorIndexOfDocumentoPagoUri);
-            }
-            final Boolean _tmpListadoCoincide;
-            final Integer _tmp;
-            if (_cursor.isNull(_cursorIndexOfListadoCoincide)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getInt(_cursorIndexOfListadoCoincide);
-            }
-            _tmpListadoCoincide = _tmp == null ? null : _tmp != 0;
-            _result = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpSolicitudPdfUri,_tmpFacturaPdfUri,_tmpFacturaXmlUri,_tmpValidacionMensaje,_tmpValidacionFotosUris,_tmpCambioTexto,_tmpFacturacionExcelUri,_tmpAcuseCancelacionUri,_tmpDocumentoPagoUri,_tmpListadoCoincide);
+            _result = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpCambioTexto,_tmpTipoSolicitud);
           } else {
             _result = null;
           }
@@ -1011,11 +805,14 @@ public final class FolioDao_Impl implements FolioDao {
   }
 
   @Override
-  public Object getById(final long folioId, final Continuation<? super Folio> $completion) {
-    final String _sql = "SELECT * FROM folios WHERE id = ? LIMIT 1";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+  public Object findByFolioAndRuta(final String folioTruper, final long rutaId,
+      final Continuation<? super Folio> $completion) {
+    final String _sql = "SELECT * FROM folios WHERE folioTruper = ? AND rutaId = ? LIMIT 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
     int _argIndex = 1;
-    _statement.bindLong(_argIndex, folioId);
+    _statement.bindString(_argIndex, folioTruper);
+    _argIndex = 2;
+    _statement.bindLong(_argIndex, rutaId);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
     return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Folio>() {
       @Override
@@ -1035,16 +832,8 @@ public final class FolioDao_Impl implements FolioDao {
           final int _cursorIndexOfTarifaTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tarifaTipo");
           final int _cursorIndexOfEstado = CursorUtil.getColumnIndexOrThrow(_cursor, "estado");
           final int _cursorIndexOfObservaciones = CursorUtil.getColumnIndexOrThrow(_cursor, "observaciones");
-          final int _cursorIndexOfSolicitudPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "solicitudPdfUri");
-          final int _cursorIndexOfFacturaPdfUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaPdfUri");
-          final int _cursorIndexOfFacturaXmlUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaXmlUri");
-          final int _cursorIndexOfValidacionMensaje = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionMensaje");
-          final int _cursorIndexOfValidacionFotosUris = CursorUtil.getColumnIndexOrThrow(_cursor, "validacionFotosUris");
           final int _cursorIndexOfCambioTexto = CursorUtil.getColumnIndexOrThrow(_cursor, "cambioTexto");
-          final int _cursorIndexOfFacturacionExcelUri = CursorUtil.getColumnIndexOrThrow(_cursor, "facturacionExcelUri");
-          final int _cursorIndexOfAcuseCancelacionUri = CursorUtil.getColumnIndexOrThrow(_cursor, "acuseCancelacionUri");
-          final int _cursorIndexOfDocumentoPagoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "documentoPagoUri");
-          final int _cursorIndexOfListadoCoincide = CursorUtil.getColumnIndexOrThrow(_cursor, "listadoCoincide");
+          final int _cursorIndexOfTipoSolicitud = CursorUtil.getColumnIndexOrThrow(_cursor, "tipoSolicitud");
           final Folio _result;
           if (_cursor.moveToFirst()) {
             final long _tmpId;
@@ -1103,69 +892,19 @@ public final class FolioDao_Impl implements FolioDao {
             } else {
               _tmpObservaciones = _cursor.getString(_cursorIndexOfObservaciones);
             }
-            final String _tmpSolicitudPdfUri;
-            if (_cursor.isNull(_cursorIndexOfSolicitudPdfUri)) {
-              _tmpSolicitudPdfUri = null;
-            } else {
-              _tmpSolicitudPdfUri = _cursor.getString(_cursorIndexOfSolicitudPdfUri);
-            }
-            final String _tmpFacturaPdfUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaPdfUri)) {
-              _tmpFacturaPdfUri = null;
-            } else {
-              _tmpFacturaPdfUri = _cursor.getString(_cursorIndexOfFacturaPdfUri);
-            }
-            final String _tmpFacturaXmlUri;
-            if (_cursor.isNull(_cursorIndexOfFacturaXmlUri)) {
-              _tmpFacturaXmlUri = null;
-            } else {
-              _tmpFacturaXmlUri = _cursor.getString(_cursorIndexOfFacturaXmlUri);
-            }
-            final String _tmpValidacionMensaje;
-            if (_cursor.isNull(_cursorIndexOfValidacionMensaje)) {
-              _tmpValidacionMensaje = null;
-            } else {
-              _tmpValidacionMensaje = _cursor.getString(_cursorIndexOfValidacionMensaje);
-            }
-            final String _tmpValidacionFotosUris;
-            if (_cursor.isNull(_cursorIndexOfValidacionFotosUris)) {
-              _tmpValidacionFotosUris = null;
-            } else {
-              _tmpValidacionFotosUris = _cursor.getString(_cursorIndexOfValidacionFotosUris);
-            }
             final String _tmpCambioTexto;
             if (_cursor.isNull(_cursorIndexOfCambioTexto)) {
               _tmpCambioTexto = null;
             } else {
               _tmpCambioTexto = _cursor.getString(_cursorIndexOfCambioTexto);
             }
-            final String _tmpFacturacionExcelUri;
-            if (_cursor.isNull(_cursorIndexOfFacturacionExcelUri)) {
-              _tmpFacturacionExcelUri = null;
+            final String _tmpTipoSolicitud;
+            if (_cursor.isNull(_cursorIndexOfTipoSolicitud)) {
+              _tmpTipoSolicitud = null;
             } else {
-              _tmpFacturacionExcelUri = _cursor.getString(_cursorIndexOfFacturacionExcelUri);
+              _tmpTipoSolicitud = _cursor.getString(_cursorIndexOfTipoSolicitud);
             }
-            final String _tmpAcuseCancelacionUri;
-            if (_cursor.isNull(_cursorIndexOfAcuseCancelacionUri)) {
-              _tmpAcuseCancelacionUri = null;
-            } else {
-              _tmpAcuseCancelacionUri = _cursor.getString(_cursorIndexOfAcuseCancelacionUri);
-            }
-            final String _tmpDocumentoPagoUri;
-            if (_cursor.isNull(_cursorIndexOfDocumentoPagoUri)) {
-              _tmpDocumentoPagoUri = null;
-            } else {
-              _tmpDocumentoPagoUri = _cursor.getString(_cursorIndexOfDocumentoPagoUri);
-            }
-            final Boolean _tmpListadoCoincide;
-            final Integer _tmp;
-            if (_cursor.isNull(_cursorIndexOfListadoCoincide)) {
-              _tmp = null;
-            } else {
-              _tmp = _cursor.getInt(_cursorIndexOfListadoCoincide);
-            }
-            _tmpListadoCoincide = _tmp == null ? null : _tmp != 0;
-            _result = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpSolicitudPdfUri,_tmpFacturaPdfUri,_tmpFacturaXmlUri,_tmpValidacionMensaje,_tmpValidacionFotosUris,_tmpCambioTexto,_tmpFacturacionExcelUri,_tmpAcuseCancelacionUri,_tmpDocumentoPagoUri,_tmpListadoCoincide);
+            _result = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpCambioTexto,_tmpTipoSolicitud);
           } else {
             _result = null;
           }
@@ -1176,6 +915,119 @@ public final class FolioDao_Impl implements FolioDao {
         }
       }
     }, $completion);
+  }
+
+  @Override
+  public Flow<Folio> getById(final long folioId) {
+    final String _sql = "SELECT * FROM folios WHERE id = ? LIMIT 1";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, folioId);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"folios"}, new Callable<Folio>() {
+      @Override
+      @Nullable
+      public Folio call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfRutaId = CursorUtil.getColumnIndexOrThrow(_cursor, "rutaId");
+          final int _cursorIndexOfFolioTruper = CursorUtil.getColumnIndexOrThrow(_cursor, "folioTruper");
+          final int _cursorIndexOfNombreEstablecimiento = CursorUtil.getColumnIndexOrThrow(_cursor, "nombreEstablecimiento");
+          final int _cursorIndexOfDireccion = CursorUtil.getColumnIndexOrThrow(_cursor, "direccion");
+          final int _cursorIndexOfTipoFachada = CursorUtil.getColumnIndexOrThrow(_cursor, "tipoFachada");
+          final int _cursorIndexOfM2Reportados = CursorUtil.getColumnIndexOrThrow(_cursor, "m2Reportados");
+          final int _cursorIndexOfM2Final = CursorUtil.getColumnIndexOrThrow(_cursor, "m2Final");
+          final int _cursorIndexOfFiguras = CursorUtil.getColumnIndexOrThrow(_cursor, "figuras");
+          final int _cursorIndexOfTarifaTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tarifaTipo");
+          final int _cursorIndexOfEstado = CursorUtil.getColumnIndexOrThrow(_cursor, "estado");
+          final int _cursorIndexOfObservaciones = CursorUtil.getColumnIndexOrThrow(_cursor, "observaciones");
+          final int _cursorIndexOfCambioTexto = CursorUtil.getColumnIndexOrThrow(_cursor, "cambioTexto");
+          final int _cursorIndexOfTipoSolicitud = CursorUtil.getColumnIndexOrThrow(_cursor, "tipoSolicitud");
+          final Folio _result;
+          if (_cursor.moveToFirst()) {
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpRutaId;
+            _tmpRutaId = _cursor.getLong(_cursorIndexOfRutaId);
+            final String _tmpFolioTruper;
+            _tmpFolioTruper = _cursor.getString(_cursorIndexOfFolioTruper);
+            final String _tmpNombreEstablecimiento;
+            if (_cursor.isNull(_cursorIndexOfNombreEstablecimiento)) {
+              _tmpNombreEstablecimiento = null;
+            } else {
+              _tmpNombreEstablecimiento = _cursor.getString(_cursorIndexOfNombreEstablecimiento);
+            }
+            final String _tmpDireccion;
+            if (_cursor.isNull(_cursorIndexOfDireccion)) {
+              _tmpDireccion = null;
+            } else {
+              _tmpDireccion = _cursor.getString(_cursorIndexOfDireccion);
+            }
+            final String _tmpTipoFachada;
+            if (_cursor.isNull(_cursorIndexOfTipoFachada)) {
+              _tmpTipoFachada = null;
+            } else {
+              _tmpTipoFachada = _cursor.getString(_cursorIndexOfTipoFachada);
+            }
+            final Double _tmpM2Reportados;
+            if (_cursor.isNull(_cursorIndexOfM2Reportados)) {
+              _tmpM2Reportados = null;
+            } else {
+              _tmpM2Reportados = _cursor.getDouble(_cursorIndexOfM2Reportados);
+            }
+            final Double _tmpM2Final;
+            if (_cursor.isNull(_cursorIndexOfM2Final)) {
+              _tmpM2Final = null;
+            } else {
+              _tmpM2Final = _cursor.getDouble(_cursorIndexOfM2Final);
+            }
+            final Integer _tmpFiguras;
+            if (_cursor.isNull(_cursorIndexOfFiguras)) {
+              _tmpFiguras = null;
+            } else {
+              _tmpFiguras = _cursor.getInt(_cursorIndexOfFiguras);
+            }
+            final String _tmpTarifaTipo;
+            if (_cursor.isNull(_cursorIndexOfTarifaTipo)) {
+              _tmpTarifaTipo = null;
+            } else {
+              _tmpTarifaTipo = _cursor.getString(_cursorIndexOfTarifaTipo);
+            }
+            final String _tmpEstado;
+            _tmpEstado = _cursor.getString(_cursorIndexOfEstado);
+            final String _tmpObservaciones;
+            if (_cursor.isNull(_cursorIndexOfObservaciones)) {
+              _tmpObservaciones = null;
+            } else {
+              _tmpObservaciones = _cursor.getString(_cursorIndexOfObservaciones);
+            }
+            final String _tmpCambioTexto;
+            if (_cursor.isNull(_cursorIndexOfCambioTexto)) {
+              _tmpCambioTexto = null;
+            } else {
+              _tmpCambioTexto = _cursor.getString(_cursorIndexOfCambioTexto);
+            }
+            final String _tmpTipoSolicitud;
+            if (_cursor.isNull(_cursorIndexOfTipoSolicitud)) {
+              _tmpTipoSolicitud = null;
+            } else {
+              _tmpTipoSolicitud = _cursor.getString(_cursorIndexOfTipoSolicitud);
+            }
+            _result = new Folio(_tmpId,_tmpRutaId,_tmpFolioTruper,_tmpNombreEstablecimiento,_tmpDireccion,_tmpTipoFachada,_tmpM2Reportados,_tmpM2Final,_tmpFiguras,_tmpTarifaTipo,_tmpEstado,_tmpObservaciones,_tmpCambioTexto,_tmpTipoSolicitud);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
   }
 
   @NonNull

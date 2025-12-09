@@ -11,6 +11,7 @@ import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.trupercontrolEdwin.app.data.entities.Pago;
+import com.trupercontrolEdwin.app.data.model.PagoConFactura;
 import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Long;
@@ -39,7 +40,7 @@ public final class PagoDao_Impl implements PagoDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `pagos` (`id`,`facturaId`,`fechaPago`,`monto`,`documentoPagoUri`,`referenciaBanco`,`tipo`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `pagos` (`id`,`facturaId`,`monto`,`fecha`) VALUES (nullif(?, 0),?,?,?)";
       }
 
       @Override
@@ -47,27 +48,8 @@ public final class PagoDao_Impl implements PagoDao {
           @NonNull final Pago entity) {
         statement.bindLong(1, entity.getId());
         statement.bindLong(2, entity.getFacturaId());
-        if (entity.getFechaPago() == null) {
-          statement.bindNull(3);
-        } else {
-          statement.bindString(3, entity.getFechaPago());
-        }
-        statement.bindDouble(4, entity.getMonto());
-        if (entity.getDocumentoPagoUri() == null) {
-          statement.bindNull(5);
-        } else {
-          statement.bindString(5, entity.getDocumentoPagoUri());
-        }
-        if (entity.getReferenciaBanco() == null) {
-          statement.bindNull(6);
-        } else {
-          statement.bindString(6, entity.getReferenciaBanco());
-        }
-        if (entity.getTipo() == null) {
-          statement.bindNull(7);
-        } else {
-          statement.bindString(7, entity.getTipo());
-        }
+        statement.bindDouble(3, entity.getMonto());
+        statement.bindLong(4, entity.getFecha());
       }
     };
   }
@@ -91,6 +73,49 @@ public final class PagoDao_Impl implements PagoDao {
   }
 
   @Override
+  public Flow<List<Pago>> getPagosByFactura(final long facturaId) {
+    final String _sql = "SELECT * FROM pagos WHERE facturaId = ? ORDER BY fecha DESC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, facturaId);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"pagos"}, new Callable<List<Pago>>() {
+      @Override
+      @NonNull
+      public List<Pago> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfFacturaId = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaId");
+          final int _cursorIndexOfMonto = CursorUtil.getColumnIndexOrThrow(_cursor, "monto");
+          final int _cursorIndexOfFecha = CursorUtil.getColumnIndexOrThrow(_cursor, "fecha");
+          final List<Pago> _result = new ArrayList<Pago>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final Pago _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpFacturaId;
+            _tmpFacturaId = _cursor.getLong(_cursorIndexOfFacturaId);
+            final double _tmpMonto;
+            _tmpMonto = _cursor.getDouble(_cursorIndexOfMonto);
+            final long _tmpFecha;
+            _tmpFecha = _cursor.getLong(_cursorIndexOfFecha);
+            _item = new Pago(_tmpId,_tmpFacturaId,_tmpMonto,_tmpFecha);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
   public Object getAllSimple(final Continuation<? super List<Pago>> $completion) {
     final String _sql = "SELECT * FROM pagos";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
@@ -103,11 +128,8 @@ public final class PagoDao_Impl implements PagoDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfFacturaId = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaId");
-          final int _cursorIndexOfFechaPago = CursorUtil.getColumnIndexOrThrow(_cursor, "fechaPago");
           final int _cursorIndexOfMonto = CursorUtil.getColumnIndexOrThrow(_cursor, "monto");
-          final int _cursorIndexOfDocumentoPagoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "documentoPagoUri");
-          final int _cursorIndexOfReferenciaBanco = CursorUtil.getColumnIndexOrThrow(_cursor, "referenciaBanco");
-          final int _cursorIndexOfTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tipo");
+          final int _cursorIndexOfFecha = CursorUtil.getColumnIndexOrThrow(_cursor, "fecha");
           final List<Pago> _result = new ArrayList<Pago>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Pago _item;
@@ -115,33 +137,11 @@ public final class PagoDao_Impl implements PagoDao {
             _tmpId = _cursor.getLong(_cursorIndexOfId);
             final long _tmpFacturaId;
             _tmpFacturaId = _cursor.getLong(_cursorIndexOfFacturaId);
-            final String _tmpFechaPago;
-            if (_cursor.isNull(_cursorIndexOfFechaPago)) {
-              _tmpFechaPago = null;
-            } else {
-              _tmpFechaPago = _cursor.getString(_cursorIndexOfFechaPago);
-            }
             final double _tmpMonto;
             _tmpMonto = _cursor.getDouble(_cursorIndexOfMonto);
-            final String _tmpDocumentoPagoUri;
-            if (_cursor.isNull(_cursorIndexOfDocumentoPagoUri)) {
-              _tmpDocumentoPagoUri = null;
-            } else {
-              _tmpDocumentoPagoUri = _cursor.getString(_cursorIndexOfDocumentoPagoUri);
-            }
-            final String _tmpReferenciaBanco;
-            if (_cursor.isNull(_cursorIndexOfReferenciaBanco)) {
-              _tmpReferenciaBanco = null;
-            } else {
-              _tmpReferenciaBanco = _cursor.getString(_cursorIndexOfReferenciaBanco);
-            }
-            final String _tmpTipo;
-            if (_cursor.isNull(_cursorIndexOfTipo)) {
-              _tmpTipo = null;
-            } else {
-              _tmpTipo = _cursor.getString(_cursorIndexOfTipo);
-            }
-            _item = new Pago(_tmpId,_tmpFacturaId,_tmpFechaPago,_tmpMonto,_tmpDocumentoPagoUri,_tmpReferenciaBanco,_tmpTipo);
+            final long _tmpFecha;
+            _tmpFecha = _cursor.getLong(_cursorIndexOfFecha);
+            _item = new Pago(_tmpId,_tmpFacturaId,_tmpMonto,_tmpFecha);
             _result.add(_item);
           }
           return _result;
@@ -154,58 +154,34 @@ public final class PagoDao_Impl implements PagoDao {
   }
 
   @Override
-  public Flow<List<Pago>> getByFactura(final long facturaId) {
-    final String _sql = "SELECT * FROM pagos WHERE facturaId = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, facturaId);
-    return CoroutinesRoom.createFlow(__db, false, new String[] {"pagos"}, new Callable<List<Pago>>() {
+  public Flow<List<PagoConFactura>> getPagosConFactura() {
+    final String _sql = "\n"
+            + "        SELECT f.folioFactura, p.monto, p.fecha \n"
+            + "        FROM pagos p \n"
+            + "        INNER JOIN facturas f ON p.facturaId = f.id \n"
+            + "        ORDER BY p.fecha DESC\n"
+            + "    ";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"pagos",
+        "facturas"}, new Callable<List<PagoConFactura>>() {
       @Override
       @NonNull
-      public List<Pago> call() throws Exception {
+      public List<PagoConFactura> call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
-          final int _cursorIndexOfFacturaId = CursorUtil.getColumnIndexOrThrow(_cursor, "facturaId");
-          final int _cursorIndexOfFechaPago = CursorUtil.getColumnIndexOrThrow(_cursor, "fechaPago");
-          final int _cursorIndexOfMonto = CursorUtil.getColumnIndexOrThrow(_cursor, "monto");
-          final int _cursorIndexOfDocumentoPagoUri = CursorUtil.getColumnIndexOrThrow(_cursor, "documentoPagoUri");
-          final int _cursorIndexOfReferenciaBanco = CursorUtil.getColumnIndexOrThrow(_cursor, "referenciaBanco");
-          final int _cursorIndexOfTipo = CursorUtil.getColumnIndexOrThrow(_cursor, "tipo");
-          final List<Pago> _result = new ArrayList<Pago>(_cursor.getCount());
+          final int _cursorIndexOfFolioFactura = 0;
+          final int _cursorIndexOfMontoPago = 1;
+          final int _cursorIndexOfFechaPago = 2;
+          final List<PagoConFactura> _result = new ArrayList<PagoConFactura>(_cursor.getCount());
           while (_cursor.moveToNext()) {
-            final Pago _item;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
-            final long _tmpFacturaId;
-            _tmpFacturaId = _cursor.getLong(_cursorIndexOfFacturaId);
-            final String _tmpFechaPago;
-            if (_cursor.isNull(_cursorIndexOfFechaPago)) {
-              _tmpFechaPago = null;
-            } else {
-              _tmpFechaPago = _cursor.getString(_cursorIndexOfFechaPago);
-            }
-            final double _tmpMonto;
-            _tmpMonto = _cursor.getDouble(_cursorIndexOfMonto);
-            final String _tmpDocumentoPagoUri;
-            if (_cursor.isNull(_cursorIndexOfDocumentoPagoUri)) {
-              _tmpDocumentoPagoUri = null;
-            } else {
-              _tmpDocumentoPagoUri = _cursor.getString(_cursorIndexOfDocumentoPagoUri);
-            }
-            final String _tmpReferenciaBanco;
-            if (_cursor.isNull(_cursorIndexOfReferenciaBanco)) {
-              _tmpReferenciaBanco = null;
-            } else {
-              _tmpReferenciaBanco = _cursor.getString(_cursorIndexOfReferenciaBanco);
-            }
-            final String _tmpTipo;
-            if (_cursor.isNull(_cursorIndexOfTipo)) {
-              _tmpTipo = null;
-            } else {
-              _tmpTipo = _cursor.getString(_cursorIndexOfTipo);
-            }
-            _item = new Pago(_tmpId,_tmpFacturaId,_tmpFechaPago,_tmpMonto,_tmpDocumentoPagoUri,_tmpReferenciaBanco,_tmpTipo);
+            final PagoConFactura _item;
+            final String _tmpFolioFactura;
+            _tmpFolioFactura = _cursor.getString(_cursorIndexOfFolioFactura);
+            final double _tmpMontoPago;
+            _tmpMontoPago = _cursor.getDouble(_cursorIndexOfMontoPago);
+            final long _tmpFechaPago;
+            _tmpFechaPago = _cursor.getLong(_cursorIndexOfFechaPago);
+            _item = new PagoConFactura(_tmpFolioFactura,_tmpMontoPago,_tmpFechaPago);
             _result.add(_item);
           }
           return _result;

@@ -9,7 +9,7 @@ import com.trupercontrolEdwin.app.data.entities.*
 
 @Database(
     entities = [Ruta::class, Folio::class, Factura::class, Pago::class],
-    version = 4, // Incrementar la versión para forzar la reconstrucción
+    version = 8, // Se incrementó la versión para la tabla Pagos
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +29,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "control_rotulaciones.db"
                 )
+                    // Esta opción destruye y recrea la base de datos si la versión cambia,
+                    // evitando el "crash" cuando se agregan o modifican columnas.
                     .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
