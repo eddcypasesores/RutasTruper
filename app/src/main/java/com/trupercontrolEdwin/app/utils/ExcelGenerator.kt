@@ -8,7 +8,7 @@ object ExcelGenerator {
 
     /**
      * Genera un Excel con los folios proporcionados.
-     * Columnas: Nombre del Establecimiento, Direccion, M2, No.Figuras, Precio unitario (Subtotal), Iva, Total
+     * Columnas: Folio, Nombre del Establecimiento, Direccion, M2, No.Figuras, Precio unitario (Subtotal), Iva, Total
      * Nota: No cierra el outputStream, eso es responsabilidad del llamador.
      */
     fun generarExcelParaFolios(
@@ -22,6 +22,7 @@ object ExcelGenerator {
             // Encabezados
             val header = sheet.createRow(0)
             val headers = listOf(
+                "Folio",
                 "Nombre del Establecimiento", 
                 "Direccion", 
                 "M2", 
@@ -45,38 +46,40 @@ object ExcelGenerator {
 
                 val row = sheet.createRow(rowIndex++)
                 
+                // 0. Folio
+                row.createCell(0).setCellValue(f.folioTruper)
+
                 // 1. Nombre del Establecimiento
-                row.createCell(0).setCellValue(f.nombreEstablecimiento ?: "")
+                row.createCell(1).setCellValue(f.nombreEstablecimiento ?: "")
                 
                 // 2. Direccion
-                row.createCell(1).setCellValue(f.direccion ?: "")
+                row.createCell(2).setCellValue(f.direccion ?: "")
                 
                 // 3. M2 (m2 finales)
-                row.createCell(2).setCellValue(m2)
+                row.createCell(3).setCellValue(m2)
                 
                 // 4. No.Figuras (Figuras)
-                row.createCell(3).setCellValue(figuras.toDouble())
+                row.createCell(4).setCellValue(figuras.toDouble())
                 
                 // 5. Precio unitario (subtotal)
-                row.createCell(4).setCellValue(subtotal)
+                row.createCell(5).setCellValue(subtotal)
                 
                 // 6. Iva
-                row.createCell(5).setCellValue(iva)
+                row.createCell(6).setCellValue(iva)
                 
                 // 7. Total
-                row.createCell(6).setCellValue(total)
+                row.createCell(7).setCellValue(total)
             }
 
-            // Ajustar tamaño de columnas manualmente en lugar de autoSizeColumn (que requiere java.awt)
-            // El ancho se mide en unidades de 1/256 de un carácter. 
-            // Por ejemplo, 256 * 20 es aproximadamente 20 caracteres de ancho.
-            sheet.setColumnWidth(0, 256 * 30) // Nombre
-            sheet.setColumnWidth(1, 256 * 40) // Dirección
-            sheet.setColumnWidth(2, 256 * 15) // M2
-            sheet.setColumnWidth(3, 256 * 15) // Figuras
-            sheet.setColumnWidth(4, 256 * 15) // P. Unitario
-            sheet.setColumnWidth(5, 256 * 15) // IVA
-            sheet.setColumnWidth(6, 256 * 15) // Total
+            // Ajustar tamaño de columnas
+            sheet.setColumnWidth(0, 256 * 15) // Folio
+            sheet.setColumnWidth(1, 256 * 30) // Nombre
+            sheet.setColumnWidth(2, 256 * 40) // Dirección
+            sheet.setColumnWidth(3, 256 * 15) // M2
+            sheet.setColumnWidth(4, 256 * 15) // Figuras
+            sheet.setColumnWidth(5, 256 * 15) // P. Unitario
+            sheet.setColumnWidth(6, 256 * 15) // IVA
+            sheet.setColumnWidth(7, 256 * 15) // Total
 
             // Escribimos al stream proporcionado SIN cerrarlo aquí
             wb.write(outputStream)

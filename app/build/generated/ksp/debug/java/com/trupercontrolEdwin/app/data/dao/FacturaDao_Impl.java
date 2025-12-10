@@ -13,6 +13,7 @@ import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.trupercontrolEdwin.app.data.entities.Factura;
+import com.trupercontrolEdwin.app.data.model.FacturaConDetalles;
 import java.lang.Class;
 import java.lang.Double;
 import java.lang.Exception;
@@ -209,6 +210,137 @@ public final class FacturaDao_Impl implements FacturaDao {
             final long _tmpFechaCreacion;
             _tmpFechaCreacion = _cursor.getLong(_cursorIndexOfFechaCreacion);
             _item = new Factura(_tmpId,_tmpFolioId,_tmpFolioFactura,_tmpSubtotal,_tmpIva,_tmpTotal,_tmpEstado,_tmpMotivoCancelacion,_tmpFechaCreacion);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Object getByFolioSimple(final long folioId,
+      final Continuation<? super List<Factura>> $completion) {
+    final String _sql = "SELECT * FROM facturas WHERE folioId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, folioId);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<Factura>>() {
+      @Override
+      @NonNull
+      public List<Factura> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfFolioId = CursorUtil.getColumnIndexOrThrow(_cursor, "folioId");
+          final int _cursorIndexOfFolioFactura = CursorUtil.getColumnIndexOrThrow(_cursor, "folioFactura");
+          final int _cursorIndexOfSubtotal = CursorUtil.getColumnIndexOrThrow(_cursor, "subtotal");
+          final int _cursorIndexOfIva = CursorUtil.getColumnIndexOrThrow(_cursor, "iva");
+          final int _cursorIndexOfTotal = CursorUtil.getColumnIndexOrThrow(_cursor, "total");
+          final int _cursorIndexOfEstado = CursorUtil.getColumnIndexOrThrow(_cursor, "estado");
+          final int _cursorIndexOfMotivoCancelacion = CursorUtil.getColumnIndexOrThrow(_cursor, "motivoCancelacion");
+          final int _cursorIndexOfFechaCreacion = CursorUtil.getColumnIndexOrThrow(_cursor, "fechaCreacion");
+          final List<Factura> _result = new ArrayList<Factura>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final Factura _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpFolioId;
+            _tmpFolioId = _cursor.getLong(_cursorIndexOfFolioId);
+            final String _tmpFolioFactura;
+            _tmpFolioFactura = _cursor.getString(_cursorIndexOfFolioFactura);
+            final double _tmpSubtotal;
+            _tmpSubtotal = _cursor.getDouble(_cursorIndexOfSubtotal);
+            final double _tmpIva;
+            _tmpIva = _cursor.getDouble(_cursorIndexOfIva);
+            final double _tmpTotal;
+            _tmpTotal = _cursor.getDouble(_cursorIndexOfTotal);
+            final String _tmpEstado;
+            _tmpEstado = _cursor.getString(_cursorIndexOfEstado);
+            final String _tmpMotivoCancelacion;
+            if (_cursor.isNull(_cursorIndexOfMotivoCancelacion)) {
+              _tmpMotivoCancelacion = null;
+            } else {
+              _tmpMotivoCancelacion = _cursor.getString(_cursorIndexOfMotivoCancelacion);
+            }
+            final long _tmpFechaCreacion;
+            _tmpFechaCreacion = _cursor.getLong(_cursorIndexOfFechaCreacion);
+            _item = new Factura(_tmpId,_tmpFolioId,_tmpFolioFactura,_tmpSubtotal,_tmpIva,_tmpTotal,_tmpEstado,_tmpMotivoCancelacion,_tmpFechaCreacion);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Flow<List<FacturaConDetalles>> getAllFacturasConDetalles() {
+    final String _sql = "\n"
+            + "        SELECT f.*, fol.folioTruper\n"
+            + "        FROM facturas AS f\n"
+            + "        JOIN folios AS fol ON f.folioId = fol.id\n"
+            + "        ORDER BY f.fechaCreacion DESC\n"
+            + "    ";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"facturas",
+        "folios"}, new Callable<List<FacturaConDetalles>>() {
+      @Override
+      @NonNull
+      public List<FacturaConDetalles> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfFolioId = CursorUtil.getColumnIndexOrThrow(_cursor, "folioId");
+          final int _cursorIndexOfFolioFactura = CursorUtil.getColumnIndexOrThrow(_cursor, "folioFactura");
+          final int _cursorIndexOfSubtotal = CursorUtil.getColumnIndexOrThrow(_cursor, "subtotal");
+          final int _cursorIndexOfIva = CursorUtil.getColumnIndexOrThrow(_cursor, "iva");
+          final int _cursorIndexOfTotal = CursorUtil.getColumnIndexOrThrow(_cursor, "total");
+          final int _cursorIndexOfEstado = CursorUtil.getColumnIndexOrThrow(_cursor, "estado");
+          final int _cursorIndexOfMotivoCancelacion = CursorUtil.getColumnIndexOrThrow(_cursor, "motivoCancelacion");
+          final int _cursorIndexOfFechaCreacion = CursorUtil.getColumnIndexOrThrow(_cursor, "fechaCreacion");
+          final int _cursorIndexOfFolioTruper = CursorUtil.getColumnIndexOrThrow(_cursor, "folioTruper");
+          final List<FacturaConDetalles> _result = new ArrayList<FacturaConDetalles>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final FacturaConDetalles _item;
+            final String _tmpFolioTruper;
+            _tmpFolioTruper = _cursor.getString(_cursorIndexOfFolioTruper);
+            final Factura _tmpFactura;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final long _tmpFolioId;
+            _tmpFolioId = _cursor.getLong(_cursorIndexOfFolioId);
+            final String _tmpFolioFactura;
+            _tmpFolioFactura = _cursor.getString(_cursorIndexOfFolioFactura);
+            final double _tmpSubtotal;
+            _tmpSubtotal = _cursor.getDouble(_cursorIndexOfSubtotal);
+            final double _tmpIva;
+            _tmpIva = _cursor.getDouble(_cursorIndexOfIva);
+            final double _tmpTotal;
+            _tmpTotal = _cursor.getDouble(_cursorIndexOfTotal);
+            final String _tmpEstado;
+            _tmpEstado = _cursor.getString(_cursorIndexOfEstado);
+            final String _tmpMotivoCancelacion;
+            if (_cursor.isNull(_cursorIndexOfMotivoCancelacion)) {
+              _tmpMotivoCancelacion = null;
+            } else {
+              _tmpMotivoCancelacion = _cursor.getString(_cursorIndexOfMotivoCancelacion);
+            }
+            final long _tmpFechaCreacion;
+            _tmpFechaCreacion = _cursor.getLong(_cursorIndexOfFechaCreacion);
+            _tmpFactura = new Factura(_tmpId,_tmpFolioId,_tmpFolioFactura,_tmpSubtotal,_tmpIva,_tmpTotal,_tmpEstado,_tmpMotivoCancelacion,_tmpFechaCreacion);
+            _item = new FacturaConDetalles(_tmpFactura,_tmpFolioTruper);
             _result.add(_item);
           }
           return _result;

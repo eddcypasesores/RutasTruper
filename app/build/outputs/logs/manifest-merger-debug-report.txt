@@ -19,6 +19,7 @@ MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\Equipo 1\.gradle\caches\
 MERGED from [androidx.work:work-runtime-ktx:2.9.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\dd1145c3cc197fc3fa843b1919998c82\transformed\work-runtime-ktx-2.9.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.work:work-runtime:2.9.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\daf97f59d6d8855231dadca59b04cff5\transformed\work-runtime-2.9.0\AndroidManifest.xml:17:1-145:12
 MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\6b2a66191db5cea2e07e5d3da654ac07\transformed\room-ktx-2.6.1\AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.accompanist:accompanist-pager:0.28.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\b95e6cf069b71f4f6e66b6523092ed94\transformed\accompanist-pager-0.28.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.navigation:navigation-common:2.8.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\0f335aecc7e2a2fdc28d94782962164d\transformed\navigation-common-2.8.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-runtime:2.8.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\878752e93d876b8799e54533ea0853f1\transformed\navigation-runtime-2.8.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-common-ktx:2.8.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\7d199e29acafcfcf2fdc6c7d5b9f3273\transformed\navigation-common-ktx-2.8.0\AndroidManifest.xml:2:1-7:12
@@ -49,6 +50,7 @@ MERGED from [androidx.activity:activity:1.9.0] C:\Users\Equipo 1\.gradle\caches\
 MERGED from [androidx.activity:activity-compose:1.9.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\9e0f9b00aeefaed59993982dc7c7b618\transformed\activity-compose-1.9.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.material:material-icons-core-android:1.6.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\d1e3272275dbdc9b4234546bf302765b\transformed\material-icons-core-release\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.material:material-ripple-android:1.6.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\96f4c98890ecf8878f397a81b35a129f\transformed\material-ripple-release\AndroidManifest.xml:2:1-7:12
+MERGED from [dev.chrisbanes.snapper:snapper:0.2.2] C:\Users\Equipo 1\.gradle\caches\transforms-4\5899f1b5c83b2bb9cd5aa2ead5298c12\transformed\snapper-0.2.2\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\5c69e7763e2b99a4991187c2b6be2aa9\transformed\foundation-layout-release\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.foundation:foundation-android:1.7.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\4d45b730a61d776e510561051c2a19b2\transformed\foundation-release\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.animation:animation-core-android:1.7.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\d34ff862b4edb2c11a4f62fad40b4756\transformed\animation-core-release\AndroidManifest.xml:2:1-7:12
@@ -97,6 +99,7 @@ MERGED from [androidx.compose.runtime:runtime-saveable-android:1.7.0] C:\Users\E
 MERGED from [androidx.compose.runtime:runtime-android:1.7.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\69bcb87b6fee7b6004bc0f7ae4afa56f\transformed\runtime-release\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\f7bf5abbe5e9daea934f82edea921133\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\cb9b7c9f1189f2bf47b27cd5928913c6\transformed\sqlite-2.4.0\AndroidManifest.xml:17:1-22:12
+MERGED from [io.github.aakira:napier-android-debug:1.4.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\d4692ddeba4069482aa62feee5394100\transformed\napier-debug\AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\ad0a15165805829055fe95828304a524\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\dfb9f1782a67381572c5f756e31201f9\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:17:1-27:12
 MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\0f984b138311cbe60352c39e59ec5650\transformed\cardview-1.0.0\AndroidManifest.xml:17:1-22:12
@@ -242,6 +245,8 @@ MERGED from [androidx.work:work-runtime:2.9.0] C:\Users\Equipo 1\.gradle\caches\
 MERGED from [androidx.work:work-runtime:2.9.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\daf97f59d6d8855231dadca59b04cff5\transformed\work-runtime-2.9.0\AndroidManifest.xml:21:5-44
 MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\6b2a66191db5cea2e07e5d3da654ac07\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
 MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\6b2a66191db5cea2e07e5d3da654ac07\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
+MERGED from [com.google.accompanist:accompanist-pager:0.28.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\b95e6cf069b71f4f6e66b6523092ed94\transformed\accompanist-pager-0.28.0\AndroidManifest.xml:20:5-22:41
+MERGED from [com.google.accompanist:accompanist-pager:0.28.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\b95e6cf069b71f4f6e66b6523092ed94\transformed\accompanist-pager-0.28.0\AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.navigation:navigation-common:2.8.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\0f335aecc7e2a2fdc28d94782962164d\transformed\navigation-common-2.8.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.navigation:navigation-common:2.8.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\0f335aecc7e2a2fdc28d94782962164d\transformed\navigation-common-2.8.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.navigation:navigation-runtime:2.8.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\878752e93d876b8799e54533ea0853f1\transformed\navigation-runtime-2.8.0\AndroidManifest.xml:20:5-44
@@ -302,6 +307,8 @@ MERGED from [androidx.compose.material:material-icons-core-android:1.6.0] C:\Use
 MERGED from [androidx.compose.material:material-icons-core-android:1.6.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\d1e3272275dbdc9b4234546bf302765b\transformed\material-icons-core-release\AndroidManifest.xml:5:5-44
 MERGED from [androidx.compose.material:material-ripple-android:1.6.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\96f4c98890ecf8878f397a81b35a129f\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
 MERGED from [androidx.compose.material:material-ripple-android:1.6.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\96f4c98890ecf8878f397a81b35a129f\transformed\material-ripple-release\AndroidManifest.xml:5:5-44
+MERGED from [dev.chrisbanes.snapper:snapper:0.2.2] C:\Users\Equipo 1\.gradle\caches\transforms-4\5899f1b5c83b2bb9cd5aa2ead5298c12\transformed\snapper-0.2.2\AndroidManifest.xml:20:5-22:41
+MERGED from [dev.chrisbanes.snapper:snapper:0.2.2] C:\Users\Equipo 1\.gradle\caches\transforms-4\5899f1b5c83b2bb9cd5aa2ead5298c12\transformed\snapper-0.2.2\AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\5c69e7763e2b99a4991187c2b6be2aa9\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
 MERGED from [androidx.compose.foundation:foundation-layout-android:1.7.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\5c69e7763e2b99a4991187c2b6be2aa9\transformed\foundation-layout-release\AndroidManifest.xml:5:5-44
 MERGED from [androidx.compose.foundation:foundation-android:1.7.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\4d45b730a61d776e510561051c2a19b2\transformed\foundation-release\AndroidManifest.xml:5:5-44
@@ -398,6 +405,8 @@ MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\Equipo 1\.gradle\c
 MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\f7bf5abbe5e9daea934f82edea921133\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\cb9b7c9f1189f2bf47b27cd5928913c6\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\Equipo 1\.gradle\caches\transforms-4\cb9b7c9f1189f2bf47b27cd5928913c6\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
+MERGED from [io.github.aakira:napier-android-debug:1.4.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\d4692ddeba4069482aa62feee5394100\transformed\napier-debug\AndroidManifest.xml:7:5-9:41
+MERGED from [io.github.aakira:napier-android-debug:1.4.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\d4692ddeba4069482aa62feee5394100\transformed\napier-debug\AndroidManifest.xml:7:5-9:41
 MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\ad0a15165805829055fe95828304a524\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\ad0a15165805829055fe95828304a524\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\Equipo 1\.gradle\caches\transforms-4\dfb9f1782a67381572c5f756e31201f9\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41

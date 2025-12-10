@@ -78,6 +78,9 @@ dependencies {
     // WorkManager
     implementation "androidx.work:work-runtime-ktx:2.9.0"
 
+    // Accompanist Pager (para las pestañas)
+    implementation "com.google.accompanist:accompanist-pager:0.28.0"
+
     // PDF
     implementation "org.apache.pdfbox:pdfbox:2.0.29"
 

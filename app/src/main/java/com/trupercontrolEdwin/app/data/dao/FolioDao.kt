@@ -26,7 +26,10 @@ interface FolioDao {
     suspend fun findByFolioAndRuta(folioTruper: String, rutaId: Long): Folio?
 
     @Query("SELECT * FROM folios WHERE id = :folioId LIMIT 1")
-    fun getById(folioId: Long): Flow<Folio?> // <-- Cambiado a Flow
+    fun getById(folioId: Long): Flow<Folio?>
+
+    @Query("SELECT * FROM folios WHERE id = :folioId LIMIT 1")
+    suspend fun getByIdSimple(folioId: Long): Folio?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(folio: Folio): Long
